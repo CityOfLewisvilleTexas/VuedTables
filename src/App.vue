@@ -11,11 +11,30 @@
     <v-container grid-list-md text-xs-center>
       <v-layout row wrap>
         <v-flex xs12>
-          <div v-if="!dataIsLoading">
+          <div v-if="dataIsLoading">
             <Loader></Loader>
+			<form class="form-inline">
+				<div v-for="(param, i) in parameters" :key="i">
+					<ParameterInput :index="i" :parameter="param" :updateFunction="updateParameterValue"/>
+					<v-btn dark success @click="getData">Submit</v-btn>
+				</div>
+			</form>
           </div>
-          <v-card v-else dark color="#390959">
-                <!-- @TODO: first, create ParameterInput comp, then work on refactoring DataTable -->
+          <v-card v-else>
+			<div>
+				<title>{{ cleanWebserviceName }}</title>
+				<h1>{{ cleanWebserviceName }}</h1>
+				<form class="form-inline">
+					<div v-for="(param, i) in parameters" :key="i">
+						<ParameterInput :index="i" :parameter="param" :updateFunction="updateParameterValue"/>
+						<v-btn dark success @click="getData">Submit</v-btn>
+					</div>
+				</form>
+				<!-- @TODO: first, create ParameterInput comp, then work on refactoring DataTable -->
+				<div v-for="(key, i) in dataKeys" :key="i">
+					<DataTable :updateData="updateData" :data="data[key]" :title="cleanWebserviceName"/> 
+				</div>
+			</div>
           </v-card>
         </v-flex>
       </v-layout>
@@ -29,15 +48,13 @@ import qs from 'qs'
 import Loader from './components/Loader'
 import ParameterInput from './components/ParameterInput'
 import DataTable from './components/DataTable'
-import DownloadButton from './components/DownloadButton'
 
 export default {
   name: 'App',
   components: {
     Loader,
     ParameterInput,
-    DataTable,
-    DownloadButton
+    DataTable
   },
   data () {
     return {
@@ -91,14 +108,10 @@ export default {
 								window.location.search +
 								window.location.hash
 						} else {
-							var apiUrl, oauthRedirectUrl
-							if (window.location.href.split('://')[1].split('.')[0].toLowerCase() === 'eservices') {
-								apiUrl = 'https://query.cityoflewisville.com/'
-								oauthRedirectUrl = 'http://eservices.cityoflewisville.com/oauthredirect/index.html'
-							} else {
-								apiUrl = 'https://ax1vnode1.cityoflewisville.com/'
-								oauthRedirectUrl = 'http://apps.cityoflewisville.com/oauthredirect/index.html'
-							}
+							
+								let apiUrl = 'https://ax1vnode1.cityoflewisville.com/'
+								let oauthRedirectUrl = 'http://apps.cityoflewisville.com/oauthredirect/index.html'
+							
 							function getParameterByName(name, url) {
 								if (!url) url = window.location.href
 								name = name.replace(/[\[\]]/g, '\\$&')
@@ -252,13 +265,14 @@ export default {
   },
   computed: {
       apiUrl() {
-          window.location.href.split('://')[1].split('.').toLowerCase() === 'eservices' 
-          ? 'http://query.cityoflewisville.com/v2/' 
-          : 'http://ax1vnode1.cityoflewisville.com/v2/'
+		   return 'http://ax1vnode1.cityoflewisville.com/v2/'
       },
-      decodedWebserviceName() {
-        return decodeURI(this.webserviceName)
-      },
+      cleanWebserviceName() {
+        return decodeURI(this.webserviceName).replace(/_/g, ' ')
+	  },
+	  dataKeys() {
+		  return Object.keys(this.data)
+	  },
       returnedData() {
         Object.keys(this.data).map(val => {
           if (this.data[val].length === 0) {
@@ -270,10 +284,10 @@ export default {
       }
     },
    mounted() {
-     this.initializeWebserviceInfo()
+	 this.initializeWebserviceInfo()
    },
    watch: {
-     'window.location.hash': function() {
+     '$route.hash': function() {
        this.initializeWebserviceInfo()
      }
    }
