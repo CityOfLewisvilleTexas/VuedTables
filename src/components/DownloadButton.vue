@@ -1,10 +1,10 @@
 <template>
-    <v-btn primary :class="buttonClass + 'btn'" @click="JSONtoCSVConvertor">{{ buttonText }} ({{ jsonData.length }} results)</v-btn>
+    <v-btn :color="color" :class="buttonClass + 'btn'" @click="JSONtoCSVConvertor">{{ buttonText }} ({{ jsonData.length }} results)</v-btn>
 </template>
 
 <script>
 export default {
-    props: ['jsonData', 'title', 'buttonText', 'buttonClass'],
+    props: ['jsonData', 'title', 'buttonText', 'buttonClass', 'color'],
     data() {
         return {
 

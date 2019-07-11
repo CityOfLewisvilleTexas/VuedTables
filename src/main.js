@@ -5,7 +5,7 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import "./registerServiceWorker";
-import moment from 'moment'
+import moment from 'moment';
 
 Vue.config.productionTip = false;
 

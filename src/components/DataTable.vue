@@ -2,14 +2,14 @@
     <div>
       <div>
         <!-- <h2>{{ parseInt(title) === 'NaN' ? '' : title }}</h2> -->
-        <DownloadButton info :jsonData="data" :title="title" :buttonText="'Download All Data'"/>
+        <DownloadButton :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data'"/>
+        <DownloadButton v-if="filteredData" :color="'warning'" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
       </div>
       <div>
-        <DownloadButton info :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
         <table>
           <thead>
             <tr>
-              <th v-for="header in headers">
+              <th v-for="(header, index) in headers" :key="index">
                 <v-btn primary @click="sortData(header)">{{ header }}</v-btn>
                 <form>
                   <input type="text" style="display:none;" :value="header" />
@@ -17,11 +17,20 @@
                 </form>
               </th>
             </tr>
-            <tr v-for="item in data">
-              <td v-for="header in headers">{{item[header]}}</td>
+            <tr v-for="(item, index) in data" :key="index">
+              <td v-for="(header, index) in headers" :key="index" 
+              :class="{'none': item[header] === ''|| item[header] === 'NULL' || item[header] === null}">
+              {{item[header] || 'NULL'}}
+              </td>
             </tr>
           </thead>
-          <tbody>
+          <tbody v-if="filters.length > 0">
+            <tr v-for="(item, index) in filteredData" :key="index" >
+              <td v-for="(header, index) in headers" :key="index"
+                :class="{'none': item[header] === '' || item[header] === 'NULL' || item[header] === null}">
+                {{item[header] || 'NULL'}}
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -46,9 +55,6 @@ data() {
        } 
     }
 },
-    computed: {
-        
-    },
     methods: {
         applyFilter(keyToFilter, value) {
           let filters = this.filters
@@ -57,13 +63,12 @@ data() {
             filters[keyToFilter] = value
           }
           else {
-            delete filters[keysToFilter]
-            this.filters = filters
+            delete filters[keyToFilter]
           }
+          this.filters = filters
+          console.log('FILTERS: ', this.filters)
         },
         blurOnFilterField(e) {
-          console.log(e.target.form["0"].value)
-          console.log(this.filters, this.filteredData)
           const keyToFilter = e.target.form["0"].value
           const value = e.target.form["1"].value
           this.applyFilter(keyToFilter, value)
@@ -204,13 +209,19 @@ data() {
                 return val[key].toString().toUpperCase.indexOf(this.filters[key].toUpperCase()) > -1
               }
               catch(err) {
-                return false
+                return err
               }
             })
           }
-        },
-
-    }
+          return filteredData
+        }
+    },
+    watch: {
+        filters: function() {
+          console.log(this.filteredData)
+          return this.filteredData
+        }
+      }
 }
 </script>
 
@@ -241,9 +252,12 @@ input:focus {
     outline-style: auto;
     outline-width: 1px;
 }
-#app > div > main > div > div > div > div > div > div > div:nth-child(5),
+/* #app > div > main > div > div > div > div > div > div > div:nth-child(5),
  #app > div > main > div > div > div > div > div > div > div:nth-child(5) > * {
     display: none !important;
+} */
+.none {
+  background-color:#dddddd49 !important;
 }
 </style>
 

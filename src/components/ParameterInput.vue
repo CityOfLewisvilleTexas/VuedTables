@@ -1,21 +1,23 @@
 <template>
-    <div v-if="textTypes.indexOf(paramType) > -1">
+<div>
+    <span>Parameter type for this search is {{ parameter['PARAMETER_TYPE'] }}</span>
+    <div v-if="textTypes.indexOf(parameter['PARAMETER_TYPE']) > -1">
         <label>{{ parameter.name.replace(/@/, '').replace(/_/g, ' ') }}&nbsp;&nbsp;</label>
         <input ref="input" v-bind="parameter" @change="updateValue" type="text"/>
     </div>
-    <div v-else-if="paramType == 'datetime'">
+    <div v-else-if="parameter['PARAMETER_TYPE'] == 'datetime'">
          <label>{{ parameter.name.replace(/@/, '').replace(/_/g, ' ') }}&nbsp;&nbsp;</label>
         <input ref="input" v-bind="parameter" @change="updateValue" type="datetime-local"/>
     </div>
-    <div v-else-if="paramType == 'date'">
+    <div v-else-if="parameter['PARAMETER_TYPE'] == 'date'">
          <label>{{ parameter.name.replace(/@/, '').replace(/_/g, ' ') }}&nbsp;&nbsp;</label>
         <input ref="input" v-bind="parameter" @change="updateValue" type="date"/>
     </div>
-    <div v-else-if="numTypes.indexOf(paramType) > -1">
+    <div v-else-if="numTypes.indexOf(parameter['PARAMETER_TYPE']) > -1">
          <label>{{ parameter.name.replace(/@/, '').replace(/_/g, ' ') }}&nbsp;&nbsp;</label>
         <input ref="input" v-bind="parameter" @change="updateValue" type="number"/>
     </div>
-    <div v-else-if="paramType === 'bit'">
+    <div v-else-if="parameter['PARAMETER_TYPE'] === 'bit'">
          <label>{{ parameter.name.replace(/@/, '').replace(/_/g, ' ') }}&nbsp;&nbsp;</label>
         <input ref="input" v-bind="parameter" @change="updateCheckboxValueToFalse" type="checkbox"/>
     </div>
@@ -25,6 +27,7 @@
             {{ parameter.name.replace(/@/, '').replace(/_/g, ' ') }}
         </label>
     </div>
+</div>
 </template>
 
 <script>
@@ -66,6 +69,20 @@ data() {
 }
 </script>
 
-<style lang="sass" scoped>
-
+<style lang="css" scoped>
+input {
+    margin-top:12px;
+    outline: #999 1px;
+    outline-color: #999;
+    outline-style: auto;
+    outline-width: 1px;
+    padding:4px;
+    margin-bottom:12px;
+}
+input:focus {
+    outline: -webkit-focus-ring-color auto 1px;
+    outline-color: -webkit-focus-ring-color;
+    outline-style: auto;
+    outline-width: 1px;
+}
 </style>
