@@ -39,11 +39,6 @@ data() {
         numTypes: ['int', 'bigint', 'numeric', 'float', 'decimal']
     }
 },
-    computed: {
-         paramType(){
-           return this.parameter['PARAMETER_TYPE']
-         }
-    },
     methods: {
         updateValue(e) {
             this.updateFunction(this.parameter, e.target.value)
@@ -58,7 +53,7 @@ data() {
     mounted() {
             console.log(this.index)
             if (this.index === 0) {
-                this.input.focus()
+                console.log('input', this.input)
             }
         },
     computed: {

@@ -3,14 +3,23 @@
       <div>
         <!-- <h2>{{ parseInt(title) === 'NaN' ? '' : title }}</h2> -->
         <DownloadButton :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data'"/>
-        <DownloadButton v-if="filteredData" :color="'warning'" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
+        <DownloadButton v-if="filteredData.length !== data.length" :color="'warning'" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
       </div>
       <div>
         <table>
           <thead>
             <tr>
               <th v-for="(header, index) in headers" :key="index">
-                <v-btn primary @click="sortData(header)">{{ header }}</v-btn>
+                <v-btn v-if="sort.key === header" 
+                color="info" @click="sortData(header)">
+                {{ header }}
+                &nbsp;
+                    <span v-if="sort.asc === true"><v-icon>arrow_drop_up</v-icon></span>
+                    <span v-if="sort.asc === false"><v-icon>arrow_drop_down</v-icon></span>
+                </v-btn>
+                <v-btn v-else dark @click="sortData(header)">
+                  {{ header }}
+                </v-btn>
                 <form>
                   <input type="text" style="display:none;" :value="header" />
                   <input :placeholder="'Filter'" class="form-control" @blur="blurOnFilterField" @keypress="keyPressOnFilterField" type="text"/>
@@ -83,6 +92,7 @@ data() {
         },
         sortData(key) {
           let data = this.data
+          console.log(this.sort)
           let keyType = null
           for (var i = 0; i <= data.length; i++) {
             if(data[i][key] !== null) {

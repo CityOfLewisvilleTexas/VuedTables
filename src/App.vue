@@ -16,7 +16,7 @@
 			<form class="form-inline">
 				<div v-for="(param, i) in parameters" :key="i">
 					<ParameterInput :index="i" :parameter="param" :updateFunction="updateParameterValue"/>
-					<v-btn dark success @click="getData">Submit</v-btn>
+					<v-btn color="success" @click="getData">Submit</v-btn>
 				</div>
 			</form>
           </div>
@@ -27,7 +27,7 @@
 				<form class="form-inline">
 					<div v-for="(param, i) in parameters" :key="i">
 						<ParameterInput :index="i" :parameter="param" :updateFunction="updateParameterValue"/>
-						<v-btn dark success @click="getData">Submit</v-btn>
+						<v-btn color="success" @click="getData">Submit</v-btn>
 					</div>
 				</form>
 				<!-- @TODO: first, create ParameterInput comp, then work on refactoring DataTable -->
