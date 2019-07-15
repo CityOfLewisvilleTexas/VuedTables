@@ -4,5 +4,5 @@ module.exports = {
       locales: ["en"]
     }
   },
-  publicPath: process.env.NODE_ENV == "production" ? "/autotables/" : "/"
+  publicPath: process.env.NODE_ENV == "production" ? "/gitlocal/cade/autotables/" : "/"
 };
