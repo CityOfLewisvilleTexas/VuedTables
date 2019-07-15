@@ -5,20 +5,24 @@
         <DownloadButton :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data'"/>
         <DownloadButton v-if="filteredData.length !== data.length" :color="'warning'" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
       </div>
-      <div>
+      <v-container>
         <table>
           <thead>
             <tr>
               <th v-for="(header, index) in headers" :key="index">
                 <v-btn v-if="sort.key === header" 
                 color="info" @click="sortData(header)">
-                {{ header }}
+                {{ prettyHeader(header) }}
                 &nbsp;
-                    <span v-if="sort.asc === true"><v-icon>arrow_drop_up</v-icon></span>
-                    <span v-if="sort.asc === false"><v-icon>arrow_drop_down</v-icon></span>
+                    <span v-if="sort.asc === true">
+                      <v-icon>arrow_drop_up</v-icon>
+                    </span>
+                    <span v-if="sort.asc === false">
+                      <v-icon>arrow_drop_down</v-icon>
+                    </span>
                 </v-btn>
                 <v-btn v-else dark @click="sortData(header)">
-                  {{ header }}
+                  {{ prettyHeader(header) }}
                 </v-btn>
                 <form>
                   <input type="text" style="display:none;" :value="header" />
@@ -26,23 +30,19 @@
                 </form>
               </th>
             </tr>
-            <tr v-for="(item, index) in data" :key="index">
+            <tr v-for="(item, index) in filteredData" :key="index">
               <td v-for="(header, index) in headers" :key="index" 
               :class="{'none': item[header] === ''|| item[header] === 'NULL' || item[header] === null}">
-              {{item[header] || 'NULL'}}
+                <div v-if="!isBase64(item[header]) && !isImageUrl(item[header]) && !isLink(item[header])">{{item[header] || 'NULL'}}</div> 
+                <img v-if="isBase64(item[header])" class="img img-responsive" :src="'data:image/jpg;base64,' + item[header]"></img>
+                <img v-if="isImageUrl(item[header])" class="img img-responsive" :src="item[header]" ></img>
+                <a v-if="!isImageUrl(item[header]) && isLink(item[header])" :href="item[header]">{{item[header] || 'NULL'}}</a>
               </td>
             </tr>
           </thead>
-          <tbody v-if="filters.length > 0">
-            <tr v-for="(item, index) in filteredData" :key="index" >
-              <td v-for="(header, index) in headers" :key="index"
-                :class="{'none': item[header] === '' || item[header] === 'NULL' || item[header] === null}">
-                {{item[header] || 'NULL'}}
-              </td>
-            </tr>
-          </tbody>
         </table>
-      </div>
+        <!-- <v-btn v-if="filters" id="clear-filters" color="error" @click="clearFilters">Clear Filters&nbsp;&nbsp;<v-icon>remove_circle</v-icon></v-btn> -->
+      </v-container>
     </div>
 </template>
 
@@ -61,21 +61,25 @@ data() {
        sort: {
          key: null,
          asc: null
-       } 
+       },
+       imageFileExtensions: ['.jpg', '.png', '.tiff', '.gif', '.webp', '.bpg']
     }
 },
     methods: {
         applyFilter(keyToFilter, value) {
+          //debugger
           let filters = this.filters
           //a blank filter will exclude null values, so if the user gets rid of a filter, it removes altogether
           if (value !== '') {
-            filters[keyToFilter] = value
+            //need to use Vue.$set, as .push() or similar methods 
+            //do not pass on Vue property prototypes, 
+            //and therefore are not considered "reactive"
+            this.$set(this.filters, keyToFilter, value)
           }
           else {
-            delete filters[keyToFilter]
+            this.$delete(this.filters, keyToFilter)
           }
-          this.filters = filters
-          console.log('FILTERS: ', this.filters)
+          console.log('Filters: ', this.filters)
         },
         blurOnFilterField(e) {
           const keyToFilter = e.target.form["0"].value
@@ -84,7 +88,7 @@ data() {
         },
         keyPressOnFilterField(e) {
           //user pressed "enter"
-          if (e.keycode === 13) {
+          if (e.keyCode === 13) {
             const keyToFilter = e.target.form["0"].value
             const value = e.target.form["1"].value
             this.applyFilter(keyToFilter, value)
@@ -92,7 +96,6 @@ data() {
         },
         sortData(key) {
           let data = this.data
-          console.log(this.sort)
           let keyType = null
           for (var i = 0; i <= data.length; i++) {
             if(data[i][key] !== null) {
@@ -199,7 +202,47 @@ data() {
         },
          mappedData(obj) {
           return obj.map( (item, i) => item)
-        }
+        },
+          isBase64(val) {
+            if(typeof val !== 'string') {
+              return false
+            } else if (val.substring(0,4) === '/9j/') {
+              return true
+            } else {
+              return false
+            }
+          },
+          formatHeaderforImgKey(header) {
+            if(header.substring(0,9) === 'AT_IMAGE_') {
+              return header.replace(/AT_IMAGE_/, '')
+            } else {
+              return header
+            }
+          },
+          isImageUrl(val) {
+            if (typeof val !== 'string') {
+              return false
+            } else if(val.substring(0,4) === 'http' && this.imageFileExtensions.indexOf(val.substring(val.length - 4).toLowerCase()) > -1) {
+              return true
+            } else {
+              return false
+            }
+          },
+          isLink(val) {
+            if(typeof val !== 'string') {
+              return false
+            } else if (val.substring(0,4) === 'http') {
+              return true
+            } else {
+              return false
+            }
+          },
+          prettyHeader(val) {
+            return val.replace(/_/, ' ')
+          },
+          clearFilters() {
+            this.filters = {}
+          }
     },
     mounted() {
         },
@@ -211,16 +254,20 @@ data() {
           }
           return headers;
         },
+        rows() {
+          let headers = this.headers
+          let rows = this.data
+            for(var item in rows) {
+                for(var header in headers) {
+                  return item[header]
+                }
+            }
+        },
         filteredData() {
           let filteredData = this.data
           for (var key in this.filters) {
             filteredData = filteredData.filter( val => {
-              try {
-                return val[key].toString().toUpperCase.indexOf(this.filters[key].toUpperCase()) > -1
-              }
-              catch(err) {
-                return err
-              }
+                return val[key].toString().toUpperCase().indexOf(this.filters[key].toUpperCase()) > -1
             })
           }
           return filteredData
@@ -228,9 +275,9 @@ data() {
     },
     watch: {
         filters: function() {
-          console.log(this.filteredData)
-          return this.filteredData
-        }
+         return this.filteredData
+        }, 
+        deep: true
       }
 }
 </script>
@@ -268,6 +315,14 @@ input:focus {
 } */
 .none {
   background-color:#dddddd49 !important;
+}
+img {
+    max-width: 165px;
+}
+#clear-filters {
+  position:absolute;
+  top:313px;
+  right:140px;
 }
 </style>
 
