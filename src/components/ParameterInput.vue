@@ -1,6 +1,6 @@
 <template>
 <div>
-    <span>Parameter type for this search is {{ parameter['PARAMETER_TYPE'] }}</span>
+    <!-- <span>Parameter type for this search is {{ parameter['PARAMETER_TYPE'] }}</span> -->
     <div v-if="textTypes.indexOf(parameter['PARAMETER_TYPE']) > -1">
         <label>{{ parameter.name.replace(/@/, '').replace(/_/g, ' ') }}&nbsp;&nbsp;</label>
         <input ref="input" v-bind="parameter" @change="updateValue" type="text"/>

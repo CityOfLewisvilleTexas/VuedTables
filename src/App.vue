@@ -16,7 +16,7 @@
 			<form class="form-inline">
 				<div v-for="(param, i) in parameters" :key="i">
 					<ParameterInput :index="i" :parameter="param" :updateFunction="updateParameterValue"/>
-					<v-btn color="success" @click="getData">Submit</v-btn>
+					<v-btn color="success"  @click="getData">Submit</v-btn>
 				</div>
 			</form>
           </div>
@@ -30,8 +30,18 @@
 						<v-btn color="success" @click="getData">Submit</v-btn>
 					</div>
 				</form>
-				<!-- @TODO: first, create ParameterInput comp, then work on refactoring DataTable -->
-				<div v-for="(key, i) in dataKeys" :key="i">
+				<!-- dummy div for x-scroll-->
+				<!-- <div id="wrapper1" onclick="window.setScroller()">
+					<div class="div1">
+					&nbsp;
+					</div>
+				</div> -->
+			<v-card flat id="scroller" >
+				<v-btn id="scrollLeft" flat @click="setScroller('left')" @mousedown="setScroller('left')" @mouseup="setScroller('left')"><v-icon large>arrow_left</v-icon></v-btn>
+				<span>SCROLL</span>
+				<v-btn id="scrollRight" flat @click="setScroller('right')" @mousedown="setScroller('right')"  @mouseup="setScroller('right')"><v-icon large>arrow_right</v-icon></v-btn>
+			</v-card>	
+				<div  id="wrapper2" v-for="(key, i) in dataKeys" :key="i">
 					<DataTable :updateData="updateData" :data="data[key]" :title="cleanWebserviceName"/> 
 				</div>
 			</div>
@@ -216,9 +226,9 @@ export default {
 			})
     },
     getData(ev) {
-      if (ev) {
-        ev.preventDefault()
-      }
+    //   if (ev) {
+    //     ev.preventDefault()
+    //   }
       let formData = {
         webservice: decodeURI(this.webserviceName), auth_token: localStorage.colAuthToken
       }
@@ -261,7 +271,12 @@ export default {
         }
       })
       this.parameters = parameters
-    }
+    },
+	setScroller(direction) {
+		const container = document.querySelector('#wrapper2')
+		if(direction === 'right') container.scrollLeft += 50
+		else if(direction === 'left') container.scrollLeft -= 50
+	}
   },
   computed: {
       apiUrl() {
@@ -280,11 +295,11 @@ export default {
             this.data[val][0]['Error'] = 'No results found'
           }
         })
-        //refactor render() in react to <template/>. create loader component, if isLoading { <Loader/> } else { render() }
       }
     },
    mounted() {
 	 this.initializeWebserviceInfo()
+
    },
    watch: {
      '$route.hash': function() {
@@ -293,3 +308,20 @@ export default {
    }
 }
 </script>
+
+<style>
+div#scroller {
+    position: absolute;
+    top: 20px;
+    right: 15px;
+}
+#wrapper2 {
+	overflow-x: scroll;
+	overflow-y:hidden;
+}
+
+.div1 {
+  width:9999px;
+  height: 20px; 
+  }
+</style>
