@@ -12,7 +12,6 @@ export default {
     },
     methods: {
         JSONtoCSVConvertor(JSONData, ReportTitle, ShowLabel) {
-            debugger;
             let getNonObjectKeys = obj => {
                 let nonObjectKeys = []
                 for (var key in obj) {
@@ -48,7 +47,7 @@ export default {
                 for (var index in arrData[0]) {
 
                     //Now convert each value to string and comma-separate
-                    row += `${index},`
+                    row += `${index.toString()},`
                 }
 
                 row = row.slice(0, -1)

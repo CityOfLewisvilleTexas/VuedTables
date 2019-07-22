@@ -30,16 +30,15 @@
 						<v-btn color="success" @click="getData">Submit</v-btn>
 					</div>
 				</form>
-				<!-- dummy div for x-scroll-->
-				<!-- <div id="wrapper1" onclick="window.setScroller()">
-					<div class="div1">
-					&nbsp;
-					</div>
-				</div> -->
-			<v-card flat id="scroller" >
+			<v-card flat id="scroller" v-if="cleanWebserviceName">
 				<v-btn id="scrollLeft" flat @click="setScroller('left')" @mousedown="setScroller('left')" @mouseup="setScroller('left')"><v-icon large>arrow_left</v-icon></v-btn>
 				<span>SCROLL</span>
 				<v-btn id="scrollRight" flat @click="setScroller('right')" @mousedown="setScroller('right')"  @mouseup="setScroller('right')"><v-icon large>arrow_right</v-icon></v-btn>
+			</v-card>
+			<v-card flat id="export-card" v-if="cleanWebserviceName">
+				<a :href="exportPath">
+					<v-btn flat id="export-button">Export</v-btn>
+				</a>	
 			</v-card>	
 				<div  id="wrapper2" v-for="(key, i) in dataKeys" :key="i">
 					<DataTable :updateData="updateData" :data="data[key]" :title="cleanWebserviceName"/> 
@@ -285,6 +284,9 @@ export default {
       cleanWebserviceName() {
         return decodeURI(this.webserviceName).replace(/_/g, ' ')
 	  },
+	  exportPath() {
+		  return `http://apps.cityoflewisville.com/gitlocal/cade/autotables/export#${this.cleanWebserviceName}`
+	  },
 	  dataKeys() {
 		  return Object.keys(this.data)
 	  },
@@ -311,17 +313,26 @@ export default {
 
 <style>
 div#scroller {
-    position: absolute;
-    top: 20px;
-    right: 15px;
+  position: absolute;
+    top: -81px;
+    right: -90px;
+    z-index: 100;
+    background-color: inherit;
 }
 #wrapper2 {
 	overflow-x: scroll;
 	overflow-y:hidden;
 }
-
 .div1 {
   width:9999px;
   height: 20px; 
   }
+button#export-button {
+    background: deepskyblue;
+    text-decoration: none !important;
+    position: absolute;
+    top: -122px;
+    z-index: 100;
+    right: 175px;
+}
 </style>

@@ -33,8 +33,8 @@
               <td v-for="(header, index) in headers" :key="index" 
               :class="{'none': item[header] === ''|| item[header] === 'NULL' || item[header] === null}">
                 <div v-if="!isBase64(item[header]) && !isImageUrl(item[header]) && !isLink(item[header])">{{item[header] || 'NULL'}}</div> 
-                <img v-if="isBase64(item[header])" class="img img-responsive" :src="'data:image/jpg;base64,' + item[header]"></img>
-                <img v-if="isImageUrl(item[header])" class="img img-responsive" :src="item[header]" ></img>
+                <img v-if="isBase64(item[header])" class="img img-responsive" :src="'data:image/jpg;base64,' + item[header]"/>
+                <img v-if="isImageUrl(item[header])" class="img img-responsive" :src="item[header]" />
                 <a v-if="!isImageUrl(item[header]) && isLink(item[header])" :href="item[header]">{{item[header] || 'NULL'}}</a>
               </td>
             </tr>
@@ -77,7 +77,6 @@ data() {
           else {
             this.$delete(this.filters, keyToFilter)
           }
-          console.log('Filters: ', this.filters)
         },
         blurOnFilterField(e) {
           const keyToFilter = e.target.form["0"].value

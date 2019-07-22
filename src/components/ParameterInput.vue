@@ -51,10 +51,6 @@ data() {
         }
     },
     mounted() {
-            console.log(this.index)
-            if (this.index === 0) {
-                console.log('input', this.input)
-            }
         },
     computed: {
         textTypeIsParam() {
