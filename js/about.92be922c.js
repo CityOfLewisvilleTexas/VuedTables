@@ -1,0 +1,2 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["about"],{bb51:function(e,n,t){"use strict";t.r(n);var l=function(){var e=this,n=e.$createElement,t=e._self._c||n;return t("HelloWorld")},a=[],o=t("1fdb"),u={components:{DataTable:o["a"]}},c=u,r=t("2877"),s=Object(r["a"])(c,l,a,!1,null,null,null);n["default"]=s.exports}}]);
+//# sourceMappingURL=about.92be922c.js.map

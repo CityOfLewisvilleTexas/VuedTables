@@ -35,11 +35,11 @@
 				<span>SCROLL</span>
 				<v-btn id="scrollRight" flat @click="setScroller('right')" @mousedown="setScroller('right')"  @mouseup="setScroller('right')"><v-icon large>arrow_right</v-icon></v-btn>
 			</v-card>
-			<v-card flat id="export-card" v-if="cleanWebserviceName">
+			<!-- <v-card flat id="export-card" v-if="cleanWebserviceName">
 				<a :href="exportPath">
 					<v-btn flat id="export-button">Export</v-btn>
 				</a>	
-			</v-card>	
+			</v-card>	 -->
 				<div  id="wrapper2" v-for="(key, i) in dataKeys" :key="i">
 					<DataTable :updateData="updateData" :data="data[key]" :title="cleanWebserviceName"/> 
 				</div>
@@ -285,7 +285,7 @@ export default {
         return decodeURI(this.webserviceName).replace(/_/g, ' ')
 	  },
 	  exportPath() {
-		  return `http://apps.cityoflewisville.com/gitlocal/cade/autotables/export#${this.cleanWebserviceName}`
+		  return `https://ax1vnode1.cityoflewisville.com/v2/html?webservice=${this.webserviceName}`
 	  },
 	  dataKeys() {
 		  return Object.keys(this.data)
@@ -313,9 +313,9 @@ export default {
 
 <style>
 div#scroller {
-  position: absolute;
-    top: -81px;
-    right: -90px;
+    position: fixed;
+    top: 7px;
+    right: 100px;
     z-index: 100;
     background-color: inherit;
 }
