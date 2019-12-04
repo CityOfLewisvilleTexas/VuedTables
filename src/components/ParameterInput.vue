@@ -1,6 +1,5 @@
 <template>
 <div>
-    <!-- <span>Parameter type for this search is {{ parameter['PARAMETER_TYPE'] }}</span> -->
     <div v-if="textTypes.indexOf(parameter['PARAMETER_TYPE']) > -1">
         <label>{{ parameter.name.replace(/@/, '').replace(/_/g, ' ') }}&nbsp;&nbsp;</label>
         <input ref="input" v-bind="parameter" @change="updateValue" type="text"/>
@@ -40,15 +39,19 @@ data() {
     }
 },
     methods: {
-        updateValue(e) {
-            this.updateFunction(this.parameter, e.target.value)
+        updateValue: function(e) {
+            let val = e.target.value
+            let name = this.parameter
+            this.updateFunction(name, val)
+            this.$emit('parameter', val, name)
         },
         updateCheckboxValueToTrue(e) {
             this.updateFunction(this.parameter, true)
         },
         updateCheckboxValueToFalse(e) {
             this.updateFunction(this.parameter, false)
-        }
+        },
+
     },
     mounted() {
         },

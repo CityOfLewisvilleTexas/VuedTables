@@ -1,5 +1,5 @@
 <template>
-    <v-btn :color="color" :class="buttonClass + 'btn'" @click="JSONtoCSVConvertor">{{ buttonText }} ({{ jsonData.length }} results)</v-btn>
+    <v-btn :color="color" class="btn-download" @click="JSONtoCSVConvertor">{{ buttonText }} ({{ jsonData.length }} results)</v-btn>
 </template>
 
 <script>
@@ -115,5 +115,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+    .btn-download {
+        position:absolute;
+    }
 </style>

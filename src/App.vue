@@ -4,7 +4,12 @@
       <v-toolbar-title class="headline text-uppercase">
         <span>Auto</span>
         <span class="font-weight-light">TABLES</span>
-      </v-toolbar-title>
+		<span style="position:absolute;right:20px;top:12px;letter-spacing:1.2px;font-size:1.3rem;font-weight:bold;">
+			{{ cleanWebserviceName }}<br/>
+			<span id="paramval" v-if="displayedParamValue !== ''">Results for : {{ displayedParamValue }}</span>
+		</span>
+
+	  </v-toolbar-title>
     </v-toolbar>
 
     <v-content>
@@ -15,31 +20,21 @@
             <Loader></Loader>
 			<form class="form-inline">
 				<div v-for="(param, i) in parameters" :key="i">
-					<ParameterInput :index="i" :parameter="param" :updateFunction="updateParameterValue"/>
-					<v-btn color="success"  @click="getData">Submit</v-btn>
+					<ParameterInput @parameter="displayParamValue" :index="i" :parameter="param" :updateFunction="updateParameterValue"/>
+					<v-btn color="success" @keypress="getData" @click="getData">Submit</v-btn>
 				</div>
 			</form>
           </div>
           <v-card v-else>
 			<div>
 				<title>{{ cleanWebserviceName }}</title>
-				<h1>{{ cleanWebserviceName }}</h1>
 				<form class="form-inline">
 					<div v-for="(param, i) in parameters" :key="i">
-						<ParameterInput :index="i" :parameter="param" :updateFunction="updateParameterValue"/>
+						<ParameterInput :index="i" @parameter="displayParamValue" :parameter="param" :updateFunction="updateParameterValue"/>
 						<v-btn color="success" @click="getData">Submit</v-btn>
 					</div>
 				</form>
-			<v-card flat id="scroller" v-if="cleanWebserviceName">
-				<v-btn id="scrollLeft" flat @click="setScroller('left')" @mousedown="setScroller('left')" @mouseup="setScroller('left')"><v-icon large>arrow_left</v-icon></v-btn>
-				<span>SCROLL</span>
-				<v-btn id="scrollRight" flat @click="setScroller('right')" @mousedown="setScroller('right')"  @mouseup="setScroller('right')"><v-icon large>arrow_right</v-icon></v-btn>
-			</v-card>
-			<!-- <v-card flat id="export-card" v-if="cleanWebserviceName">
-				<a :href="exportPath">
-					<v-btn flat id="export-button">Export</v-btn>
-				</a>	
-			</v-card>	 -->
+
 				<div  id="wrapper2" v-for="(key, i) in dataKeys" :key="i">
 					<DataTable :updateData="updateData" :data="data[key]" :title="cleanWebserviceName"/> 
 				</div>
@@ -71,7 +66,9 @@ export default {
       dataIsLoading: false,
       webserviceName: '',
       parameters: [],
-      parametersLoaded: false,
+	  parametersLoaded: false,
+	  displayedParamValue: '',
+	  activeParamName: '',
       sort: {
         key: null,
         asc: null
@@ -259,8 +256,9 @@ export default {
     },
     updateData(resultSet, data) {
       let newData = this.data
-      newData[resultSet] = data
-      this.data = newData
+	  newData[resultSet] = data
+	  this.data = newData
+	  delete this.data[this.cleanWebserviceName]
     },
     updateParameterValue(parameter, newValue) {
       let parameters = this.parameters
@@ -271,10 +269,11 @@ export default {
       })
       this.parameters = parameters
     },
-	setScroller(direction) {
-		const container = document.querySelector('#wrapper2')
-		if(direction === 'right') container.scrollLeft += 50
-		else if(direction === 'left') container.scrollLeft -= 50
+
+	displayParamValue(val, name) {
+		console.log(val)
+		this.displayedParamValue = val
+		this.activeParamName = name
 	}
   },
   computed: {
@@ -300,7 +299,12 @@ export default {
       }
     },
    mounted() {
-	 this.initializeWebserviceInfo()
+	 this.initializeWebserviceInfo(),
+	 window.addEventListener('keyup', event => {
+      if (event.keyCode === 13) { 
+        this.getData()
+      }
+    })
 
    },
    watch: {
@@ -312,12 +316,8 @@ export default {
 </script>
 
 <style>
-div#scroller {
-    position: fixed;
-    top: 7px;
-    right: 100px;
-    z-index: 100;
-    background-color: inherit;
+.v-toolbar__content {
+	height:80px !important;
 }
 #wrapper2 {
 	overflow-x: scroll;

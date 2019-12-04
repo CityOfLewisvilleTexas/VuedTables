@@ -1,11 +1,9 @@
  <template>
+<div>
+    <DownloadButton :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data \n'"/>
+    <DownloadButton v-if="filteredData.length !== data.length" :color="'warning'" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
     <div id="card">
-      <div>
-        <!-- <h2>{{ parseInt(title) === 'NaN' ? '' : title }}</h2> -->
-        <DownloadButton :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data'"/>
-        <DownloadButton v-if="filteredData.length !== data.length" :color="'warning'" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
-      </div>
-        <table>
+        <table style="margin-top:50px;padding-top:80px;">
           <thead>
             <tr>
               <th v-for="(header, index) in headers" :key="index">
@@ -42,6 +40,7 @@
         </table>
         <!-- <v-btn v-if="filters" id="clear-filters" color="error" @click="clearFilters">Clear Filters&nbsp;&nbsp;<v-icon>remove_circle</v-icon></v-btn> -->
     </div>
+  </div>
 </template>
 
 <script>
@@ -92,6 +91,7 @@ data() {
           }
         },
         sortData(key) {
+          //debugger;
           let data = this.data
           let keyType = null
           for (var i = 0; i <= data.length; i++) {
@@ -306,10 +306,6 @@ input:focus {
     outline-style: auto;
     outline-width: 1px;
 }
-/* #app > div > main > div > div > div > div > div > div > div:nth-child(5),
- #app > div > main > div > div > div > div > div > div > div:nth-child(5) > * {
-    display: none !important;
-} */
 .none {
   background-color:#dddddd49 !important;
 }
@@ -320,6 +316,32 @@ img {
   position:absolute;
   top:313px;
   right:140px;
+}
+
+div#div_downloadbuttons {
+    text-align: center;
+    left: 340px;
+    top:130px;
+}
+
+tr, td {
+  border:1px solid #dddddd;
+}
+th {
+  border-left: 1px solid #dddddd;
+  border-top: 1px solid #dddddd;
+  border-right: 1px solid #dddddd;
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  padding-bottom: 1px;
+  margin-bottom: -5px;
+}
+tr:nth-child(even) {
+  background-color:#F9F9F9;
+}
+
+table:nth-child(2) {
+  display:none;
 }
 </style>
 
