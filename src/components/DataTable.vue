@@ -343,5 +343,8 @@ tr:nth-child(even) {
 table:nth-child(2) {
   display:none;
 }
+button.btn-download.v-btn.theme--light.primary {
+    left: 42vw;
+}
 </style>
 
