@@ -1,6 +1,6 @@
  <template>
 <div>
-    <DownloadButton :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data \n'"/>
+    <DownloadButton :class="{ 'slide': filteredData.length === data.length, 'slide-left': filteredData.length !== data.length }" :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data \n'"/>
     <DownloadButton v-if="filteredData.length !== data.length" :color="'warning'" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
     <div id="card">
         <table style="margin-top:50px;padding-top:80px;">
@@ -343,8 +343,12 @@ tr:nth-child(even) {
 table:nth-child(2) {
   display:none;
 }
-button.btn-download.v-btn.theme--light.primary {
-    left: 42vw;
+.slide {
+    left: 38vw;
+}
+
+.slide-left {
+  left:28vw;
 }
 </style>
 

@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/gitlocal/cade/autotables/precache-manifest.69ae0a7df25dbf219b0d73a744740c6b.js"
+  "/gitlocal/cade/autotables/precache-manifest.9c676f1b646b23dab723615d6c96df0b.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "autotables"});

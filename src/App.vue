@@ -6,7 +6,7 @@
         <span class="font-weight-light">TABLES</span>
 		<span style="position:absolute;right:20px;top:12px;letter-spacing:1.2px;font-size:1.3rem;font-weight:bold;">
 			{{ cleanWebserviceName }}<br/>
-			<span id="paramval" v-if="displayedParamValue !== ''">Results for : {{ displayedParamValue }}</span>
+			<span id="paramval" v-if="parameters.length && showingResultsFor !== ''">{{ showingResultsFor }}</span>
 		</span>
 
 	  </v-toolbar-title>
@@ -18,27 +18,17 @@
         <v-flex xs12>
           <div v-if="dataIsLoading">
             <Loader></Loader>
-			<form class="form-inline">
-				<div v-for="(param, i) in parameters" :key="i">
-					<ParameterInput @parameter="displayParamValue" :index="i" :parameter="param" :updateFunction="updateParameterValue"/>
-					<v-btn color="success" @keypress="getData" @click="getData">Submit</v-btn>
-				</div>
-			</form>
+			<!-- <form class="form-inline">
+				<span v-for="(param, i) in parameters" :key="i">
+					<Parameters :parameters="parameters" @selectedParams="updateSelectedParams" :updateParameterValue="updateParameterValue"/>
+				</span>
+			</form> -->
           </div>
           <v-card v-else>
-			<div>
-				<title>{{ cleanWebserviceName }}</title>
-				<form class="form-inline">
-					<div v-for="(param, i) in parameters" :key="i">
-						<ParameterInput :index="i" @parameter="displayParamValue" :parameter="param" :updateFunction="updateParameterValue"/>
-						<v-btn color="success" @click="getData">Submit</v-btn>
-					</div>
-				</form>
-
+			<Parameters :parameters="parameters" @selectedParams="updateSelectedParams" :updateParameterValue="updateParameterValue"/>
 				<div  id="wrapper2" v-for="(key, i) in dataKeys" :key="i">
 					<DataTable :updateData="updateData" :data="data[key]" :title="cleanWebserviceName"/> 
 				</div>
-			</div>
           </v-card>
         </v-flex>
       </v-layout>
@@ -52,23 +42,25 @@ import qs from 'qs'
 import Loader from './components/Loader'
 import ParameterInput from './components/ParameterInput'
 import DataTable from './components/DataTable'
+import Parameters from './components/Parameters'
 
 export default {
   name: 'App',
   components: {
     Loader,
     ParameterInput,
-    DataTable
+	DataTable,
+	Parameters
   },
   data () {
     return {
       data: [],
       dataIsLoading: false,
       webserviceName: '',
-      parameters: [],
+	  parameters: [],
+	  selectedParams: [],
 	  parametersLoaded: false,
-	  displayedParamValue: '',
-	  activeParamName: '',
+	 showingResultsFor: '',
       sort: {
         key: null,
         asc: null
@@ -76,6 +68,10 @@ export default {
     }
   },
   methods: {
+	updateSelectedParams: function(payload){
+		this.selectedParams = payload
+		console.log('selectedParams', this.selectedParams)
+	},
     initializeWebserviceInfo() {
 		var urlQuery = {}
 		if (window.location.search !== '') {
@@ -261,20 +257,32 @@ export default {
 	  delete this.data[this.cleanWebserviceName]
     },
     updateParameterValue(parameter, newValue) {
-      let parameters = this.parameters
+	 let parameters = this.parameters
+	 if(!arguments[1]) {
+		 let newParams = arguments[0]
+		 parameters.map(originalParam => {
+			newParams.map(newParam => {
+				if(originalParam.name.replace('@', '') === newParam.name) {
+					originalParam.value = newParam.value
+				}
+				return originalParam	
+			})
+			return originalParam
+		 })
+		 this.parameters = parameters
+	 } else {
       parameters.map( (val, index) => {
         if(val['name'] === parameter['name']) {
           parameters[index]['value'] = newValue
         }
       })
-      this.parameters = parameters
-    },
-
-	displayParamValue(val, name) {
-		console.log(val)
-		this.displayedParamValue = val
-		this.activeParamName = name
-	}
+	  this.parameters = parameters
+	  console.log(this.parameters)
+	 }
+     console.log('wrapped params', this.parameters.map(p => p.value))
+	 this.getData()
+	 this.showingResultsFor = `Showing results for: ${this.parameters.map((p, i) => `${p.name.replace('@', '')} = ${p.value} `)}` 
+    }
   },
   computed: {
       apiUrl() {
@@ -302,7 +310,7 @@ export default {
 	 this.initializeWebserviceInfo(),
 	 window.addEventListener('keyup', event => {
       if (event.keyCode === 13) { 
-        this.getData()
+        this.updateParameterValue()
       }
     })
 
@@ -334,5 +342,14 @@ button#export-button {
     top: -122px;
     z-index: 100;
     right: 175px;
+}
+#app > div > main > div > div > div > div > div > div > form > span {
+	margin:0 12px;
+}
+#app > div > main > div > div > div > div > div > div > form > span > div {
+    display: inline-block;
+}
+span#paramval {
+    font-size: 1rem;
 }
 </style>
