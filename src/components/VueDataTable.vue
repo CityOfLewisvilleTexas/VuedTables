@@ -1,5 +1,6 @@
 <template>
     <v-layout row wrap>
+    <v-btn class="button-docked">add filter &#43;</v-btn>
     <DownloadButton :class="{ 'slide': filteredData.length === data.length, 'slide-left': filteredData.length !== data.length }" :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data \n'"/>
     <DownloadButton v-if="filteredData.length !== data.length" :color="'warning'" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
     <v-data-table
@@ -34,9 +35,10 @@
 <script>
 import DownloadButton from './DownloadButton'
 import moment from 'moment'
+
 export default {
     name: 'VueDataTable',
-    props: ['updateData', 'data', 'title'],
+    props: ['updateData', 'data', 'title', 'datakey'],
     components: {
         DownloadButton
     },
@@ -338,5 +340,17 @@ i.v-icon.material-icons.theme--light {
 }
 .slide-left {
   right:190px;
+}
+button.button-docked.v-btn.theme--light {
+    position: absolute;
+    right: -22px;
+    clip: rect(0px,156px,183px,106px);
+    border-radius: 15px;
+    border:.5px solid #999;
+    transition:.3s;
+}
+button.button-docked.v-btn.theme--light:hover {
+    transition:.5s;
+    clip: rect(0px,156px,83px,0px)
 }
 </style> 

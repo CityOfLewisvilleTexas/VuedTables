@@ -27,8 +27,7 @@
           <v-card v-else class="table-container">
 			<Parameters :parameters="parameters" @selectedParams="updateSelectedParams" :updateParameterValue="updateParameterValue"/>
 				<div  id="wrapper2" v-for="(key, i) in dataKeys" :key="i">
-					<VueDataTable :updateData="updateData" :data="data[key]" :title="cleanWebserviceName"/>
-					<!-- <DataTable :updateData="updateData" :data="data[key]" :title="cleanWebserviceName"/>  -->
+					<VueDataTable :updateData="updateData" :data="data[key]" :title="cleanWebserviceName" :datakey="key" />
 				</div>
           </v-card>
         </v-flex>
@@ -310,7 +309,7 @@ export default {
       }
     },
    mounted() {
-	 this.initializeWebserviceInfo(),
+	 this.initializeWebserviceInfo()
    },
    watch: {
      '$route.hash': function() {
