@@ -18,16 +18,11 @@
         <v-flex xs12>
           <div v-if="dataIsLoading">
             <Loader></Loader>
-			<!-- <form class="form-inline">
-				<span v-for="(param, i) in parameters" :key="i">
-					<Parameters :parameters="parameters" @selectedParams="updateSelectedParams" :updateParameterValue="updateParameterValue"/>
-				</span>
-			</form> -->
           </div>
           <v-card v-else class="table-container">
 			<Parameters :parameters="parameters" @selectedParams="updateSelectedParams" :updateParameterValue="updateParameterValue"/>
 				<div  id="wrapper2" v-for="(key, i) in dataKeys" :key="i">
-					<VueDataTable :updateData="updateData" :data="data[key]" :title="cleanWebserviceName" :datakey="key" />
+					<VueDataTable :updateData="updateData" :data="data[key]" :title="cleanWebserviceName" :datakey="key" :datakeyIndex="i"/>
 				</div>
           </v-card>
         </v-flex>

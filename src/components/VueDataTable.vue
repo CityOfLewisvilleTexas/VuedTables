@@ -1,6 +1,7 @@
 <template>
     <v-layout row wrap>
-    <v-btn class="button-docked">add filter &#43;</v-btn>
+    <h3 v-if="datakey && datakey !== '0'" style="color:white;text-transform:uppercase;">{{datakey}}</h3>
+    <v-btn class="button-docked" @click="dialog = !dialog">format columns &#43;</v-btn>
     <DownloadButton :class="{ 'slide': filteredData.length === data.length, 'slide-left': filteredData.length !== data.length }" :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data \n'"/>
     <DownloadButton v-if="filteredData.length !== data.length" :color="'warning'" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
     <v-data-table
@@ -14,7 +15,8 @@
     <template slot="headers" slot-scope="props">
         <th v-for="(header, index) in props.headers" :key="index"
             :class="['column sortable', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '']"
-            @click.self="changeSort(header.value)">
+            @click.self="changeSort(header.value)"
+            v-if="headersToExclude.indexOf(header.text) === -1">
              {{ prettyHeader(header.text) }}
           <v-icon small>arrow_upward</v-icon>
                 <form @click.stop="changeSort">
@@ -24,11 +26,52 @@
         </th>
     </template>
       <template slot="items" slot-scope="props">
-        <td v-for="(header, index) in headers" :key="index">
+        <td v-for="(header, index) in headers" :key="index" v-if="headersToExclude.indexOf(header.text) === -1">
             {{ props.item[header.value] }}
         </td>
       </template>
     </v-data-table>
+    <v-dialog
+      v-model="dialog"
+      width="500"
+    >
+      <v-card dark>
+        <v-card-title
+          class="headline"
+          primary-title
+        >
+          Include / Exclude Columns
+        </v-card-title>
+
+       <v-list two-line subheader >
+            <v-subheader id="sub">
+                Select columns you would like to include / exclude
+            </v-subheader>
+            <div v-for="(header, index) in headers" :key="index">
+            <v-list-tile>
+              <v-list-tile-action>
+                <v-checkbox v-model="header.selected"></v-checkbox>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title>{{header.text}}</v-list-tile-title>
+              </v-list-tile-content>            
+            </v-list-tile>
+              <v-divider v-if="index + 1 < headers.length"></v-divider>
+              </div>
+          </v-list>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="update"
+          >
+            Update
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     </v-layout>
 </template>
 
@@ -38,7 +81,7 @@ import moment from 'moment'
 
 export default {
     name: 'VueDataTable',
-    props: ['updateData', 'data', 'title', 'datakey'],
+    props: ['updateData', 'data', 'title', 'datakey', 'datakeyIndex'],
     components: {
         DownloadButton
     },
@@ -47,6 +90,9 @@ export default {
             items: [],
             search: '',
             filters: {},
+            dialog: false,
+            allSelected: false,
+            headersToExclude: [],
             pagination: {
                 sortBy: this.headers,
                 desc: null,
@@ -64,6 +110,12 @@ export default {
     deep: true
     },
     methods: {
+        update() {
+            this.dialog = false
+            this.headersToExclude = []
+            this.headers.filter(h => !h.selected).map(h => this.headersToExclude.push(h.text))
+            console.log(this.headersToExclude)
+        },
         changeSort (column) {
         if (this.pagination.sortBy === column) {
           this.pagination.descending = !this.pagination.descending
@@ -254,6 +306,13 @@ export default {
       },
     },
     computed: {
+        selection() {
+        return this.headers.filter(header => {
+            if (header.selected === true) {
+            return header
+            }
+        });
+        },
         headers() {
             let scopedKeys = []
             let _set = new Set()
@@ -265,7 +324,8 @@ export default {
                         align: 'start',
                         value: key,
                         filterable:true,
-                        divider:true
+                        divider:true,
+                        selected:true
                         })
                 })
             scopedKeys.map(k => _set.add(k))
@@ -301,6 +361,9 @@ i.v-icon.material-icons.theme--light {
 }
 .elevation-1 {
     margin-top: 70px;
+}
+.v-table {
+    margin-top: 20px;
 }
 .v-datatable__actions__range-controls {
     display:flex;
@@ -341,16 +404,21 @@ i.v-icon.material-icons.theme--light {
 .slide-left {
   right:190px;
 }
+button.btn-download {
+    top: 46px;
+}
 button.button-docked.v-btn.theme--light {
     position: absolute;
     right: -22px;
-    clip: rect(0px,156px,183px,106px);
+    clip: rect(0px, 156px, 183px, 141px);
     border-radius: 15px;
     border:.5px solid #999;
     transition:.3s;
+    background:red;
 }
 button.button-docked.v-btn.theme--light:hover {
     transition:.5s;
-    clip: rect(0px,156px,83px,0px)
+    clip: rect(0px,156px,83px,0px);
+    background:#ddd;
 }
 </style> 
