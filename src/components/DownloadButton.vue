@@ -1,5 +1,5 @@
 <template>
-    <v-btn :color="color" class="btn-download" @click="JSONtoCSVConvertor">{{ buttonText }} ({{ jsonData.length }} results)</v-btn>
+    <v-btn :color="color" class="btn-download" @click="JSONtoCSVConvertor">{{ buttonText }} ({{ jsonData.length }} result{{jsonData.length > 1 ? 's' : ''}})</v-btn>
 </template>
 
 <script>

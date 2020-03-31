@@ -24,10 +24,11 @@
 				</span>
 			</form> -->
           </div>
-          <v-card v-else>
+          <v-card v-else class="table-container">
 			<Parameters :parameters="parameters" @selectedParams="updateSelectedParams" :updateParameterValue="updateParameterValue"/>
 				<div  id="wrapper2" v-for="(key, i) in dataKeys" :key="i">
-					<DataTable :updateData="updateData" :data="data[key]" :title="cleanWebserviceName"/> 
+					<VueDataTable :updateData="updateData" :data="data[key]" :title="cleanWebserviceName"/>
+					<!-- <DataTable :updateData="updateData" :data="data[key]" :title="cleanWebserviceName"/>  -->
 				</div>
           </v-card>
         </v-flex>
@@ -43,14 +44,18 @@ import Loader from './components/Loader'
 import ParameterInput from './components/ParameterInput'
 import DataTable from './components/DataTable'
 import Parameters from './components/Parameters'
+import VueDataTable from './components/VueDataTable'
 
 export default {
+	/* es-lint disable */
+	//prettier-ignore
   name: 'App',
   components: {
     Loader,
     ParameterInput,
 	DataTable,
-	Parameters
+	Parameters,
+	VueDataTable
   },
   data () {
     return {
@@ -70,7 +75,6 @@ export default {
   methods: {
 	updateSelectedParams: function(payload){
 		this.selectedParams = payload
-		console.log('selectedParams', this.selectedParams)
 	},
     initializeWebserviceInfo() {
 		var urlQuery = {}
@@ -251,6 +255,7 @@ export default {
           })    
     },
     updateData(resultSet, data) {
+	//debugger;
       let newData = this.data
 	  newData[resultSet] = data
 	  this.data = newData
@@ -277,9 +282,7 @@ export default {
         }
       })
 	  this.parameters = parameters
-	  console.log(this.parameters)
 	 }
-     console.log('wrapped params', this.parameters.map(p => p.value))
 	 this.getData()
 	 this.showingResultsFor = `Showing results for: ${this.parameters.map((p, i) => `${p.name.replace('@', '')} = ${p.value} `)}` 
     }
@@ -308,12 +311,6 @@ export default {
     },
    mounted() {
 	 this.initializeWebserviceInfo(),
-	 window.addEventListener('keyup', event => {
-      if (event.keyCode === 13) { 
-        this.updateParameterValue()
-      }
-    })
-
    },
    watch: {
      '$route.hash': function() {
@@ -330,6 +327,20 @@ export default {
 #wrapper2 {
 	overflow-x: scroll;
 	overflow-y:hidden;
+	background:#424242;
+	margin-bottom:110px;
+
+}
+.v-table__overflow::-webkit-scrollbar {
+  width: 1em !important;
+}
+ 
+.v-table__overflow::-webkit-scrollbar-thumb {
+  background-color: darkgrey !important;
+  outline: 1px solid slategrey !important;
+}
+.container.grid-list-md.text-xs-center {
+    margin-top: 40px;
 }
 .div1 {
   width:9999px;
@@ -351,5 +362,19 @@ button#export-button {
 }
 span#paramval {
     font-size: 1rem;
+}
+.v-datatable__actions {
+    justify-content: flex-start !important;
+    /* bottom: -60px !important; */
+    position: absolute !important;
+    left: .3px;
+    margin-top: 33px;
+    width: -webkit-fill-available;
+}
+.v-input input {
+    font-size:10px !important;
+}
+.layout.row.wrap {
+    padding: 20px;
 }
 </style>

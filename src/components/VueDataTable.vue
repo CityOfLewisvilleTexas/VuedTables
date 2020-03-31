@@ -1,97 +1,102 @@
- <template>
-<div>
+<template>
+    <v-layout row wrap>
     <DownloadButton :class="{ 'slide': filteredData.length === data.length, 'slide-left': filteredData.length !== data.length }" :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data \n'"/>
     <DownloadButton v-if="filteredData.length !== data.length" :color="'warning'" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
-    <div id="card">
-        <table style="margin-top:50px;padding-top:80px;">
-          <thead>
-            <tr>
-              <th v-for="(header, index) in headers" :key="index">
-                <v-btn v-if="sort.key === header" 
-                color="info" @click="sortData(header)">
-                {{ prettyHeader(header) }}
-                &nbsp;
-                    <span v-if="sort.asc === true">
-                      <v-icon>arrow_drop_up</v-icon>
-                    </span>
-                    <span v-if="sort.asc === false">
-                      <v-icon>arrow_drop_down</v-icon>
-                    </span>
-                </v-btn>
-                <v-btn v-else dark @click="sortData(header)">
-                  {{ prettyHeader(header) }}
-                </v-btn>
-                <form>
-                  <input type="text" style="display:none;" :value="header" />
-                  <input :placeholder="'Filter'" class="form-control" @blur="blurOnFilterField" @keypress="keyPressOnFilterField" type="text"/>
+    <v-data-table
+      :headers="headers"
+      :items="filteredData"
+      class="elevation-1"
+      :search="search"
+      :pagination.sync="pagination"
+      dark
+    >
+    <template slot="headers" slot-scope="props">
+        <th v-for="(header, index) in props.headers" :key="index"
+            :class="['column sortable', pagination.descending ? 'desc' : 'asc', header.value === pagination.sortBy ? 'active' : '']"
+            @click.self="changeSort(header.value)">
+             {{ prettyHeader(header.text) }}
+          <v-icon small>arrow_upward</v-icon>
+                <form @click.stop="changeSort">
+                  <input type="text" style="display:none;" :value="header.text" />
+                  <v-text-field :placeholder="'Filter'" class="form-control" @blur="blurOnFilterField" @keypress="keyPressOnFilterField" type="text"></v-text-field>
                 </form>
-              </th>
-            </tr>
-            <tr v-for="(item, index) in filteredData" :key="index">
-              <td v-for="(header, index) in headers" :key="index" 
-              :class="{'none': item[header] === ''|| item[header] === 'NULL' || item[header] === null}">
-                <div v-if="!isBase64(item[header]) && !isImageUrl(item[header]) && !isLink(item[header])">{{item[header] || 'NULL'}}</div> 
-                <img v-if="isBase64(item[header])" class="img img-responsive" :src="'data:image/jpg;base64,' + item[header]"/>
-                <img v-if="isImageUrl(item[header])" class="img img-responsive" :src="item[header]" />
-                <a v-if="!isImageUrl(item[header]) && isLink(item[header])" :href="item[header]">{{item[header] || 'NULL'}}</a>
-              </td>
-            </tr>
-          </thead>
-        </table>
-        <!-- <v-btn v-if="filters" id="clear-filters" color="error" @click="clearFilters">Clear Filters&nbsp;&nbsp;<v-icon>remove_circle</v-icon></v-btn> -->
-    </div>
-  </div>
+        </th>
+    </template>
+      <template slot="items" slot-scope="props">
+        <td v-for="(header, index) in headers" :key="index">
+            {{ props.item[header.value] }}
+        </td>
+      </template>
+    </v-data-table>
+    </v-layout>
 </template>
 
 <script>
 import DownloadButton from './DownloadButton'
 import moment from 'moment'
-
 export default {
-props: ['updateData', 'data', 'title', 'items'],
-  components: {
-    DownloadButton
-  },
-data() {
-    return {
-       filters: {},
-       sort: {
-         key: null,
-         asc: null
-       },
-       imageFileExtensions: ['.jpg', '.png', '.tiff', '.gif', '.webp', '.bpg']
-    }
-},
+    name: 'VueDataTable',
+    props: ['updateData', 'data', 'title'],
+    components: {
+        DownloadButton
+    },
+    data() {
+        return {
+            items: [],
+            search: '',
+            filters: {},
+            pagination: {
+                sortBy: this.headers,
+                desc: null,
+                asc: null
+            },
+            imageFileExtensions: ['.jpg', '.png', '.tiff', '.gif', '.webp', '.bpg']
+                }
+    },
+    mounted() {
+    },
+    watch: {
+    filters: function() {
+        return this.filteredData
+    },
+    deep: true
+    },
     methods: {
-        applyFilter(keyToFilter, value) {
-          //debugger
+        changeSort (column) {
+        if (this.pagination.sortBy === column) {
+          this.pagination.descending = !this.pagination.descending
+        } else {
+          this.pagination.sortBy = column
+          this.pagination.descending = false
+            }
+        },
+         applyFilter(keyToFilter, value) {
           let filters = this.filters
-          //a blank filter will exclude null values, so if the user gets rid of a filter, it removes altogether
           if (value !== '') {
-            //need to use Vue.$set, as .push() or similar methods 
-            //do not pass on Vue property prototypes, 
-            //and therefore are not considered "reactive"
             this.$set(this.filters, keyToFilter, value)
           }
           else {
             this.$delete(this.filters, keyToFilter)
           }
         },
+
         blurOnFilterField(e) {
           const keyToFilter = e.target.form["0"].value
           const value = e.target.form["1"].value
           this.applyFilter(keyToFilter, value)
         },
+
         keyPressOnFilterField(e) {
           //user pressed "enter"
           if (e.keyCode === 13) {
+              e.preventDefault()
             const keyToFilter = e.target.form["0"].value
             const value = e.target.form["1"].value
             this.applyFilter(keyToFilter, value)
           }
         },
+
         sortData(key) {
-          //debugger;
           let data = this.data
           let keyType = null
           for (var i = 0; i <= data.length; i++) {
@@ -101,6 +106,7 @@ data() {
             }
           }
           if ((this.sort.key === key && !this.sort.asc) || this.sort.key !== key) {
+              console.log('asc', this.sort.asc, 'desc', this.sort.desc)
             data = data.sort( (a, b) => {
               //sort asc
               if (keyType === 'number') {
@@ -239,28 +245,32 @@ data() {
           },
           clearFilters() {
             this.filters = {}
-          }
+          },
+
+      filterSearch(val) {
+        this.filters = this.$MultiFilters.updateFilters(this.filters, {search: val});
+      },
     },
-    mounted() {
-        },
     computed: {
-        headers : function(){
-          var headers = [];
-          for (var k in this.data[0]){
-              headers.push(k);
-          }
-          return headers;
-        },
-        rows() {
-          let headers = this.headers
-          let rows = this.data
-            for(var item in rows) {
-                for(var header in headers) {
-                  return item[header]
-                }
-            }
-        },
-        filteredData() {
+        headers() {
+            let scopedKeys = []
+            let _set = new Set()
+            let dataKeys = Object.keys(this.data[0])
+                dataKeys.map(key => {
+                      scopedKeys
+                      .push({
+                        text: key,
+                        align: 'start',
+                        value: key,
+                        filterable:true,
+                        divider:true
+                        })
+                })
+            scopedKeys.map(k => _set.add(k))
+            return [..._set]
+         },
+
+         filteredData() {
           let filteredData = this.data
           for (var key in this.filters) {
             filteredData = filteredData.filter( val => {
@@ -268,87 +278,65 @@ data() {
             })
           }
           return filteredData
-        }
-    },
-    watch: {
-        filters: function() {
-         return this.filteredData
-        }, 
-        deep: true
-      }
+        },
+    }
 }
 </script>
 
-<style lang="css" scoped>
-div, table {
-    margin-bottom: 20px;
+<style lang="scss" scoped>
+.search {
+    padding: 20px;
 }
-table, tr, td {
-    margin-left: auto;
-    margin-right: auto;
-    padding: 12px;
+.filter {
+    position: absolute;
+    width: 50vw;
 }
-th {
-  padding-left:12px !important;
-  padding-right: 12px !important;
+.v-text-field__slot > * {
+    color: white !important;
 }
-input {
-    margin-top:12px;
-    outline: #999 1px;
-    outline-color: #999;
-    outline-style: auto;
-    outline-width: 1px;
-    padding:4px;
+i.v-icon.material-icons.theme--light {
+    color: white;
 }
-input:focus {
-    outline: -webkit-focus-ring-color auto 1px;
-    outline-color: -webkit-focus-ring-color;
-    outline-style: auto;
-    outline-width: 1px;
+.elevation-1 {
+    margin-top: 70px;
 }
-.none {
-  background-color:#dddddd49 !important;
+.v-datatable__actions__range-controls {
+    display:flex;
 }
-img {
-    max-width: 165px;
+.v-datatable__actions__select {
+    flex:0;
 }
-#clear-filters {
-  position:absolute;
-  top:313px;
-  right:140px;
+.theme--dark.v-datatable .v-datatable__actions {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: end;
+    -ms-flex-pack: end;
+    justify-content: flex-end;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    flex-direction: row-reverse;
+    font-size: 12px;
+    -ms-flex-wrap: wrap-reverse;
+    flex-wrap: wrap-reverse;
 }
-
-div#div_downloadbuttons {
-    text-align: center;
-    left: 340px;
-    top:130px;
-}
-
-tr, td {
-  border:1px solid #dddddd;
-}
-th {
-  border-left: 1px solid #dddddd;
-  border-top: 1px solid #dddddd;
-  border-right: 1px solid #dddddd;
-  border-bottom: none;
-  border-radius: 20px 20px 0 0;
-  padding-bottom: 1px;
-  margin-bottom: -5px;
-}
-tr:nth-child(even) {
-  background-color:#F9F9F9;
+.theme--dark.v-datatable .v-datatable__actions {
+    display:flex;
+    flex-direction:row-reverse;
+    margin-top: 56px !important;
 }
 
-table:nth-child(2) {
-  display:none;
+.layout.wrap {
+    background: #424242;
+}
+.v-content__wrap {
+    background: #424242;
 }
 .slide {
-    left: 38vw;
+    left: 32vw;
 }
-
 .slide-left {
   right:190px;
 }
-</style>
-
+</style> 

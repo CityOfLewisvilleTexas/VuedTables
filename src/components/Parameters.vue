@@ -1,5 +1,5 @@
 <template>
-<div>
+<div id="param-container">
     <div class="paramInput" v-for="(parameter, index) in parameters" :key="index">
         <div class="paramInput" v-if="textTypes.indexOf(parameter['PARAMETER_TYPE']) > -1">
             <label>{{ parameter.name.replace(/@/, '').replace(/_/g, ' ') }}&nbsp;&nbsp;</label>
@@ -97,5 +97,11 @@ input:focus {
 .paramInput {
     display: inline-block;
     margin: 0 12px;
+}
+div#param-container {
+    background: #424242;
+    color: white;
+    border-bottom: 1px solid #999;
+    border-bottom-style: dotted;
 }
 </style>
