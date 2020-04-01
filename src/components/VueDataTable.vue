@@ -391,7 +391,6 @@ i.v-icon.material-icons.theme--light {
     flex-direction:row-reverse;
     margin-top: 56px !important;
 }
-
 .layout.wrap {
     background: #424242;
 }
@@ -403,9 +402,6 @@ i.v-icon.material-icons.theme--light {
 }
 .slide-left {
   right:190px;
-}
-button.btn-download {
-    top: 46px;
 }
 button.button-docked.v-btn.theme--light {
     position: absolute;
