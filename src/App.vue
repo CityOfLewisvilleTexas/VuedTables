@@ -22,7 +22,7 @@
           <v-card v-else class="table-container">
 			<Parameters :parameters="parameters" @selectedParams="updateSelectedParams" :updateParameterValue="updateParameterValue"/>
 				<div  id="wrapper2" v-for="(key, i) in dataKeys" :key="i">
-					<VueDataTable :updateData="updateData" :data="data[key]" :title="cleanWebserviceName" :datakey="key" :datakeyIndex="i"/>
+					<VueDataTable :apiUrl="apiUrl" :updateData="updateData" :data="data[key]" :title="cleanWebserviceName" :datakey="key" :datakeyIndex="i" :webserviceName="webserviceName"/>
 				</div>
           </v-card>
         </v-flex>
@@ -39,6 +39,7 @@ import ParameterInput from './components/ParameterInput'
 import DataTable from './components/DataTable'
 import Parameters from './components/Parameters'
 import VueDataTable from './components/VueDataTable'
+import axios from 'axios'
 
 export default {
 	/* es-lint disable */

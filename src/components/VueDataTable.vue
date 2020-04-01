@@ -1,7 +1,7 @@
 <template>
     <v-layout row wrap>
     <h3 v-if="datakey && datakey !== '0'" style="color:white;text-transform:uppercase;">{{datakey}}</h3>
-    <v-btn class="button-docked" @click="dialog = !dialog">format columns &#43;</v-btn>
+    <v-btn class="button-docked" @click="dockedButtonClick" >format columns &#43;</v-btn>
     <DownloadButton :class="{ 'slide': filteredData.length === data.length, 'slide-left': filteredData.length !== data.length }" :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data \n'"/>
     <DownloadButton v-if="filteredData.length !== data.length" :color="'warning'" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
     <v-data-table
@@ -62,6 +62,7 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
+          <v-btn left mr-10 info @click="reset">Reset</v-btn>
           <v-btn
             color="primary"
             text
@@ -78,16 +79,19 @@
 <script>
 import DownloadButton from './DownloadButton'
 import moment from 'moment'
+import qs from 'qs'
+import axios from 'axios'
 
 export default {
     name: 'VueDataTable',
-    props: ['updateData', 'data', 'title', 'datakey', 'datakeyIndex'],
+    props: ['apiUrl', 'updateData', 'data', 'title', 'datakey', 'datakeyIndex', 'webserviceName'],
     components: {
         DownloadButton
     },
     data() {
         return {
             items: [],
+            interaction: false,
             search: '',
             filters: {},
             dialog: false,
@@ -102,6 +106,7 @@ export default {
                 }
     },
     mounted() {
+      this.setInitialColumns()
     },
     watch: {
     filters: function() {
@@ -110,11 +115,79 @@ export default {
     deep: true
     },
     methods: {
+        dockedButtonClick() {
+          this.dialog = !this.dialog
+          this.interaction = true
+        },
+        exists(val) {
+          console.log('val', val)
+          return Boolean(val && val !== '' && val !== undefined)
+        },
+        createReferenceArray(i) {
+            let arr = []
+            if(i.includes(',')) {
+                i.split(',').map(i => arr.push(i))
+                return arr
+            } else {
+                arr.push(i)
+            } return arr
+        },
+        formatColumns(user, headers, headersToExclude, flag) {
+          axios
+          .post(
+            this.apiUrl,
+            qs.stringify({
+            webservice: 'MiscPrograms/Autotables/Format Columns',
+            webserviceName: decodeURI(this.webserviceName),
+            editedBy: user,
+            webserviceColumns: headers,
+            columnsToExclude: headersToExclude.length ? headersToExclude : '',
+            flag: flag
+            })
+          )
+          .then(response => {
+            let data = response.data[0][0]
+            let x = data['autotables_webserviceColumnsToExclude']
+            if(this.exists(x)) {
+              this.headersToExclude = this.createReferenceArray(x)
+              console.log('headers to exclude', this.headersToExclude)
+            }
+          })
+          .catch(err => console.warn('there was an error', err))
+        },
+        setInitialColumns() {
+            let that = this
+            this.formatColumns(
+              that.user,
+              that.headers.filter(h => h.selected).map(h => h.text).join(','),
+              that.headers.filter(h => !h.selected).map(h => h.text).join(','),
+              0
+            )
+        },
         update() {
             this.dialog = false
-            this.headersToExclude = []
-            this.headers.filter(h => !h.selected).map(h => this.headersToExclude.push(h.text))
-            console.log(this.headersToExclude)
+            let that = this
+            this.formatColumns(
+              that.user,
+              that.headers.filter(h => h.selected).map(h => h.text).join(','),
+              that.headers.filter(h => !h.selected).map(h => h.text).join(','),
+              1
+            )
+        },
+        reset() {
+          this.dialog = false
+          axios.post(this.apiUrl,
+          qs.stringify({
+            webservice: 'MiscPrograms/Autotables/Reset Columns',
+            webserviceName: decodeURI(this.webserviceName),
+            editedBy: this.user
+            }))
+              .then(response => {
+                let data = response.data[0][0]
+                let x = data['autotables_webserviceColumnsToExclude']
+                  this.headersToExclude = this.createReferenceArray(x)
+                  console.log('headers to exclude', this.headersToExclude)
+              })
         },
         changeSort (column) {
         if (this.pagination.sortBy === column) {
@@ -160,7 +233,6 @@ export default {
             }
           }
           if ((this.sort.key === key && !this.sort.asc) || this.sort.key !== key) {
-              console.log('asc', this.sort.asc, 'desc', this.sort.desc)
             data = data.sort( (a, b) => {
               //sort asc
               if (keyType === 'number') {
@@ -306,6 +378,9 @@ export default {
       },
     },
     computed: {
+        user() {
+          return localStorage.colEmail !== undefined ? localStorage.colEmail : null
+        },
         selection() {
         return this.headers.filter(header => {
             if (header.selected === true) {
@@ -325,7 +400,7 @@ export default {
                         value: key,
                         filterable:true,
                         divider:true,
-                        selected:true
+                        selected: this.headersToExclude.indexOf(key) === -1 ? true : false
                         })
                 })
             scopedKeys.map(k => _set.add(k))
