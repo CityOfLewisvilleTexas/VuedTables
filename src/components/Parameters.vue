@@ -98,10 +98,4 @@ input:focus {
     display: inline-block;
     margin: 0 12px;
 }
-div#param-container {
-    background: #424242;
-    color: white;
-    border-bottom: 1px solid #999;
-    border-bottom-style: dotted;
-}
 </style>

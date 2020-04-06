@@ -1,6 +1,7 @@
  <template>
 <div>
-    <DownloadButton :class="{ 'slide': filteredData.length === data.length, 'slide-left': filteredData.length !== data.length }" :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data \n'"/>
+    <DownloadButton :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data \n'"/>
+    <!--  :class="{ 'slide': filteredData.length === data.length, 'slide-left': filteredData.length !== data.length }" -->
     <DownloadButton v-if="filteredData.length !== data.length" :color="'warning'" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
     <div id="card">
         <table style="margin-top:50px;padding-top:80px;">
@@ -18,7 +19,7 @@
                       <v-icon>arrow_drop_down</v-icon>
                     </span>
                 </v-btn>
-                <v-btn v-else dark @click="sortData(header)">
+                <v-btn v-else @click="sortData(header)">
                   {{ prettyHeader(header) }}
                 </v-btn>
                 <form>
@@ -343,12 +344,12 @@ tr:nth-child(even) {
 table:nth-child(2) {
   display:none;
 }
-.slide {
+/* .slide {
     left: 38vw;
 }
 
 .slide-left {
   right:190px;
-}
+} */
 </style>
 

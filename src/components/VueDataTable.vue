@@ -1,16 +1,18 @@
 <template>
     <v-layout row wrap>
-    <h3 v-if="datakey && datakey !== '0'" style="color:white;text-transform:uppercase;">{{datakey}}</h3>
+    <div class="resultset-title">
+      <h3 v-if="datakey && datakey !== '0'" style="text-transform:uppercase;">{{datakey}}</h3>
+    </div>
     <v-btn class="button-docked" @click="dockedButtonClick" >format columns &#43;</v-btn>
-    <DownloadButton :class="{ 'slide': filteredData.length === data.length, 'slide-left': filteredData.length !== data.length }" :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data \n'"/>
-    <DownloadButton v-if="filteredData.length !== data.length" :color="'warning'" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
+    <DownloadButton :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data \n'"/>
+    <DownloadButton class="filtered-data" v-if="filteredData.length !== data.length" :color="'warning'" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
     <v-data-table
       :headers="headers"
       :items="filteredData"
       class="elevation-1"
       :search="search"
       :pagination.sync="pagination"
-      dark
+      
     >
     <template slot="headers" slot-scope="props">
         <th v-for="(header, index) in props.headers" :key="index"
@@ -35,7 +37,7 @@
       v-model="dialog"
       width="500"
     >
-      <v-card dark>
+      <v-card>
         <v-card-title
           class="headline"
           primary-title
@@ -62,7 +64,7 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn left mr-10 info @click="reset">Reset</v-btn>
+          <v-btn class="reset" left mr-5 info @click="reset">Reset</v-btn>
           <v-btn
             color="primary"
             text
@@ -120,7 +122,6 @@ export default {
           this.interaction = true
         },
         exists(val) {
-          console.log('val', val)
           return Boolean(val && val !== '' && val !== undefined)
         },
         createReferenceArray(i) {
@@ -150,7 +151,7 @@ export default {
             let x = data['autotables_webserviceColumnsToExclude']
             if(this.exists(x)) {
               this.headersToExclude = this.createReferenceArray(x)
-              console.log('headers to exclude', this.headersToExclude)
+              // console.log('headers to exclude', this.headersToExclude)
             }
           })
           .catch(err => console.warn('there was an error', err))
@@ -186,7 +187,7 @@ export default {
                 let data = response.data[0][0]
                 let x = data['autotables_webserviceColumnsToExclude']
                   this.headersToExclude = this.createReferenceArray(x)
-                  console.log('headers to exclude', this.headersToExclude)
+                  // console.log('headers to exclude', this.headersToExclude)
               })
         },
         changeSort (column) {
@@ -446,7 +447,8 @@ i.v-icon.material-icons.theme--light {
 .v-datatable__actions__select {
     flex:0;
 }
-.theme--dark.v-datatable .v-datatable__actions {
+.theme--dark.v-datatable .v-datatable__actions,
+.theme--light.v-datatable .v-datatable__actions {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
@@ -461,24 +463,26 @@ i.v-icon.material-icons.theme--light {
     -ms-flex-wrap: wrap-reverse;
     flex-wrap: wrap-reverse;
 }
-.theme--dark.v-datatable .v-datatable__actions {
+.theme--dark.v-datatable .v-datatable__actions,
+.theme--light.v-datatable .v-datatable__actions {
     display:flex;
     flex-direction:row-reverse;
     margin-top: 56px !important;
 }
-.layout.wrap {
-    background: #424242;
-}
-.v-content__wrap {
-    background: #424242;
-}
-.slide {
-    left: 32vw;
-}
-.slide-left {
-  right:190px;
-}
-button.button-docked.v-btn.theme--light {
+// .layout.wrap {
+//     background: #424242;
+// }
+// .v-content__wrap {
+//     background: #424242;
+// }
+// .slide {
+//     left: 32vw;
+// }
+// .slide-left {
+//   right:190px;
+// }
+button.button-docked.v-btn.theme--light,
+button.button-docked.v-btn.theme--dark {
     position: absolute;
     right: -22px;
     clip: rect(0px, 156px, 183px, 141px);
@@ -487,7 +491,9 @@ button.button-docked.v-btn.theme--light {
     transition:.3s;
     background:red;
 }
-button.button-docked.v-btn.theme--light:hover {
+
+button.button-docked.v-btn.theme--light:hover,
+button.button-docked.v-btn.theme--dark:hover {
     transition:.5s;
     clip: rect(0px,156px,83px,0px);
     background:#ddd;

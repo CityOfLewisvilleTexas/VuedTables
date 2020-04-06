@@ -1,9 +1,13 @@
 <template>
-  <v-app>
+  <v-app :dark="goDark">
     <v-toolbar app>
       <v-toolbar-title class="headline text-uppercase">
-        <span>Auto</span>
-        <span class="font-weight-light">TABLES</span>
+        <span class="span-title">Auto</span>
+        <span class="span-title font-weight-light">TABLES</span>
+		<div id="dark-label-container">
+			<v-switch v-model="goDark"></v-switch>
+			<label id="dark-label">{{goDark ? 'Light' : 'Dark'}}</label>
+		</div>
 		<span style="position:absolute;right:20px;top:12px;letter-spacing:1.2px;font-size:1.3rem;font-weight:bold;">
 			{{ cleanWebserviceName }}<br/>
 			<span id="paramval" v-if="parameters.length && showingResultsFor !== ''">{{ showingResultsFor }}</span>
@@ -55,12 +59,14 @@ export default {
   data () {
     return {
       data: [],
-      dataIsLoading: false,
+	  dataIsLoading: false,
+	  goDark: false,
       webserviceName: '',
 	  parameters: [],
 	  selectedParams: [],
 	  parametersLoaded: false,
 	 showingResultsFor: '',
+	 activeDirectory: [],
       sort: {
         key: null,
         asc: null
@@ -248,7 +254,17 @@ export default {
             this.sort.asc = null
             this.dataIsLoading = false
           })    
-    },
+	},
+	getSetActiveDirectoryITS() {
+		axios
+		.get('http://query.cityoflewisville.com/ActiveDirectory/GetUsersInfoInGroup/Dev%20ITS')
+		.then(response => response.data)
+		.then(users => {
+			this.activeDirectory = users
+			console.log(this.activeDirectory)
+		})
+		.catch(err => console.log(err))
+	},
     updateData(resultSet, data) {
 	//debugger;
       let newData = this.data
@@ -280,7 +296,7 @@ export default {
 	 }
 	 this.getData()
 	 this.showingResultsFor = `Showing results for: ${this.parameters.map((p, i) => `${p.name.replace('@', '')} = ${p.value} `)}` 
-    }
+	}
   },
   computed: {
       apiUrl() {
@@ -305,7 +321,8 @@ export default {
       }
     },
    mounted() {
-	 this.initializeWebserviceInfo()
+	 this.initializeWebserviceInfo(),
+	 this.getSetActiveDirectoryITS()
    },
    watch: {
      '$route.hash': function() {
@@ -322,8 +339,8 @@ export default {
 #wrapper2 {
 	overflow-x: scroll;
 	overflow-y:hidden;
-	background:#424242;
 	margin-bottom:110px;
+	border-top: .5px solid #ddd;
 
 }
 .v-table__overflow::-webkit-scrollbar {
@@ -371,5 +388,70 @@ span#paramval {
 }
 .layout.row.wrap {
     padding: 20px;
+}
+.container.grid-list-md.text-xs-center {
+    min-width: 100%;
+}
+.v-toolbar .v-input {
+    margin: 0;
+    display: inline-block;
+    margin-left: 12px;
+}
+.v-input--switch__track.theme--dark.accent--text {
+    color: red !important;
+}
+.v-input--switch__thumb.theme--dark.accent--text {
+    color: red !important;
+}
+.reset {
+	margin-right: 20px !important;
+}
+button.btn-download {
+    position: absolute;
+    right: -22px;
+    clip: rect(0px, 258px, 190px, 243px);
+    border-radius: 15px;
+    border: .5px solid #999;
+    -webkit-transition: .3s;
+    transition: .3s;
+    margin-top: 44px;
+}
+button.btn-download.filtered-data {
+    position: absolute;
+    right: -21px;
+    margin-top: 83px;
+    clip: rect(0px, 286px, 209px, 270.5px);
+}
+button.btn-download.filtered-data:hover {
+	transition:.5s;
+	position:absolute !important;
+    clip: rect(0px,287px,91px,11px);
+    background:royalblue;
+}
+button.btn-download:hover {
+    transition:.5s;
+	position:absolute !important;
+    clip: rect(0px,258px,83px,0px);
+    background:royalblue;
+}
+/* {
+    margin-top: 30px;
+} */
+.v-table {
+    margin-top: 20px;
+}
+div#dark-label-container {
+    display: inline-block;
+    margin-left: 20px;
+}
+label#dark-label {
+    font-size: x-small;
+    text-transform:capitalize;
+    display: block;
+    text-align: center;
+    margin-top: -32px;
+}
+span.span-title {
+    vertical-align: super;
 }
 </style>
