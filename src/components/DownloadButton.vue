@@ -27,7 +27,7 @@ export default {
                     return 'rect(0px, 306.5px, 190px, 290px)'
                 } 
                 else {
-                    return 'rect(0px, 298px, 190px, 282.5px)'//'rect(0px, 298.5px, 190px, 281.5px)'
+                    return 'rect(0px, 289.5px, 190px, 274.5px)'//'rect(0px, 298.5px, 190px, 281.5px)'
                     }
             }
             if(num.length > 3) {
