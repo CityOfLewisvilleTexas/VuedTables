@@ -1,5 +1,8 @@
 <template>
-    <v-btn :color="color" class="btn-download" @click="JSONtoCSVConvertor">{{ buttonText }} ({{ jsonData.length }} result{{jsonData.length > 1 ? 's' : ''}})&nbsp;&nbsp;&#8595;</v-btn>
+    <v-btn :color="color" :style="{'clip': determineClipLength(jsonData.length, buttonText)}" class="btn-download" @click="JSONtoCSVConvertor">
+        {{ buttonText }}&nbsp;({{ jsonData.length }} result{{jsonData.length > 1 ? 's' : ''}})
+        &nbsp;&nbsp;&#8595;
+    </v-btn>
 </template>
 
 <script>
@@ -11,6 +14,34 @@ export default {
         }
     },
     methods: {
+        determineClipLength(num, btnText) {
+            debugger;
+            num = num.toString()
+            if(btnText === 'Download Filtered Data') {
+                if(num.length > 3) {
+                    return 'rect(0px, 321px, 190px, 307px)'
+                } else if(num.length > 2 && num.length < 4) {
+                    return 'rect(0px, 313.5px, 190px, 299px)'
+                }
+                else if(num.length === 2) {
+                    return 'rect(0px, 306.5px, 190px, 290px)'
+                } 
+                else {
+                    return 'rect(0px, 298px, 190px, 282.5px)'//'rect(0px, 298.5px, 190px, 281.5px)'
+                    }
+            }
+            if(num.length > 3) {
+                return 'rect(0px, 285px, 190px, 270px)'
+            } else if(num.length > 2 && num.length < 4) {
+            return 'rect(0px, 277px, 190px, 262px)'
+             }
+             else if(num.length === 2) {
+            return 'rect(0px, 269.5px, 190px, 254px)'
+            } 
+             else {
+            return 'rect(0px, 262px, 190px, 245px)'
+                }
+            },
         JSONtoCSVConvertor(JSONData, ReportTitle, ShowLabel) {
             let getNonObjectKeys = obj => {
                 let nonObjectKeys = []

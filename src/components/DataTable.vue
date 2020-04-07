@@ -2,7 +2,7 @@
 <div>
     <DownloadButton :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data \n'"/>
     <!--  :class="{ 'slide': filteredData.length === data.length, 'slide-left': filteredData.length !== data.length }" -->
-    <DownloadButton v-if="filteredData.length !== data.length" :color="'warning'" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
+    <DownloadButton v-if="filteredData.length !== data.length" style="background:#ffcc22;" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
     <div id="card">
         <table style="margin-top:50px;padding-top:80px;">
           <thead>

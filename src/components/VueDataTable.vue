@@ -4,8 +4,8 @@
       <h3 v-if="datakey && datakey !== '0'" style="text-transform:uppercase;">{{datakey}}</h3>
     </div>
     <v-btn class="button-docked" @click="dockedButtonClick" >format columns &#43;</v-btn>
-    <DownloadButton :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data \n'"/>
-    <DownloadButton class="filtered-data" v-if="filteredData.length !== data.length" :color="'warning'" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
+    <DownloadButton :jsonData="data" :color="'primary'" :title="title" :buttonText="'Download All Data'"/>
+    <DownloadButton class="filtered-data" v-if="filteredData.length !== data.length" :color="'#ffcc22'" :jsonData="filteredData" :title="title" :buttonText="'Download Filtered Data'" />
     <v-data-table
       :headers="headers"
       :items="filteredData"
@@ -469,18 +469,6 @@ i.v-icon.material-icons.theme--light {
     flex-direction:row-reverse;
     margin-top: 56px !important;
 }
-// .layout.wrap {
-//     background: #424242;
-// }
-// .v-content__wrap {
-//     background: #424242;
-// }
-// .slide {
-//     left: 32vw;
-// }
-// .slide-left {
-//   right:190px;
-// }
 button.button-docked.v-btn.theme--light,
 button.button-docked.v-btn.theme--dark {
     position: absolute;

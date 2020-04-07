@@ -409,7 +409,7 @@ span#paramval {
 button.btn-download {
     position: absolute;
     right: -22px;
-    clip: rect(0px, 258px, 190px, 243px);
+    clip: rect(0px, 262px, 190px, 245px);
     border-radius: 15px;
     border: .5px solid #999;
     -webkit-transition: .3s;
@@ -419,19 +419,19 @@ button.btn-download {
 button.btn-download.filtered-data {
     position: absolute;
     right: -21px;
-    margin-top: 83px;
-    clip: rect(0px, 286px, 209px, 270.5px);
+    margin-top: -32px;
+    clip: rect(0px, 291px, 190px, 272.5px);
 }
 button.btn-download.filtered-data:hover {
 	transition:.5s;
 	position:absolute !important;
-    clip: rect(0px,287px,91px,11px);
+    clip: rect(0px,319px,91px,0px) !important;
     background:royalblue;
 }
 button.btn-download:hover {
     transition:.5s;
 	position:absolute !important;
-    clip: rect(0px,258px,83px,0px);
+    clip: rect(0px,283.5px,89px,0px) !important;
     background:royalblue;
 }
 /* {
