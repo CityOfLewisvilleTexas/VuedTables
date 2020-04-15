@@ -15,7 +15,6 @@ export default {
     },
     methods: {
         determineClipLength(num, btnText) {
-            debugger;
             num = num.toString()
             if(btnText === 'Download Filtered Data') {
                 if(num.length > 3) {

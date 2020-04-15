@@ -1,6 +1,10 @@
 <template>
   <v-app :dark="goDark">
     <v-toolbar app>
+	<v-toolbar-side-icon class="robot">
+		<v-img class="robot-dark" v-if="goDark" :src="require('../src/assets/robot-dark.png')" />
+		<v-img class="robot-light" v-else :src="require('../src/assets/robot-light.png')" />
+    </v-toolbar-side-icon>
       <v-toolbar-title class="headline text-uppercase">
         <span class="span-title">Auto</span>
         <span class="span-title font-weight-light">TABLES</span>
@@ -12,10 +16,11 @@
 			{{ cleanWebserviceName }}<br/>
 			<span id="paramval" v-if="parameters.length && showingResultsFor !== ''">{{ showingResultsFor }}</span>
 		</span>
-
 	  </v-toolbar-title>
     </v-toolbar>
-
+	<v-btn id="user-login" color="success" @click="checkIfUserInActiveDirectory">
+		{{user ? user : 'user login'}}
+	</v-btn>
     <v-content>
     <v-container grid-list-md text-xs-center>
       <v-layout row wrap>
@@ -26,7 +31,19 @@
           <v-card v-else class="table-container">
 			<Parameters :parameters="parameters" @selectedParams="updateSelectedParams" :updateParameterValue="updateParameterValue"/>
 				<div  id="wrapper2" v-for="(key, i) in dataKeys" :key="i">
-					<VueDataTable :apiUrl="apiUrl" :updateData="updateData" :data="data[key]" :title="cleanWebserviceName" :datakey="key" :datakeyIndex="i" :webserviceName="webserviceName"/>
+					<VueDataTable 
+					 :apiUrl="apiUrl"
+					 :updateData="updateData" 
+					 :data="data[key]" 
+					 :title="cleanWebserviceName" 
+					 :datakey="key" 
+					 :datakeyIndex="i" 
+					 :webserviceName="webserviceName" 
+					 :getAuth="getSetAuth" 
+					 :activeDirectory="activeDirectory"
+					 :user="user"
+					 :checkIfUserInActiveDirectory="checkIfUserInActiveDirectory"
+					/>
 				</div>
           </v-card>
         </v-flex>
@@ -74,6 +91,19 @@ export default {
     }
   },
   methods: {
+	  checkIfUserInActiveDirectory() {
+          let currentUser = this.user
+          const authorizedUserEmails = this.activeDirectory
+          .map(u => u['mail']
+          .toLowerCase())
+
+          if(currentUser === '' ||currentUser === null || currentUser === 'undefined') {
+            this.getSetAuth()
+            }
+          return authorizedUserEmails
+          .filter(u => u === currentUser)
+          .length ? true : false
+        },
 	updateSelectedParams: function(payload){
 		this.selectedParams = payload
 	},
@@ -106,7 +136,47 @@ export default {
 			.then(e => {
 				var data = e.data
 				if (data[0][0]['OAUTH_REQUIRED']) {
-					;(function() {
+					this.getSetAuth()
+				}
+			})
+		axios
+			.post(
+				this.apiUrl,
+				qs.stringify({
+					webservice: 'ITS/Get Parameters For Webservice',
+					webservice_name: decodeURI(this.webserviceName),
+					auth_token: localStorage.colAuthToken
+				})
+			)
+			.then(e => {
+				var data = e.data
+				var countOfParametersPreFilled = 0
+				if (data.length === 0) {
+					data[0] = []
+				}
+				data[0].map((val, i) => {
+					if (upperUrlQuery[val['name'].replace(/@/, '').toUpperCase()]) {
+						data[0][i]['value'] = upperUrlQuery[val['name'].replace(/@/, '').toUpperCase()]
+						countOfParametersPreFilled += 1
+					} else {
+						const textTypes = ['char', 'nvarchar', 'varchar', 'varbinary']
+						if (textTypes.indexOf(val['PARAMETER_TYPE']) > -1) {
+							data[0][i]['value'] = ''
+						} else {
+							data[0][i]['value'] = null
+						}
+					}
+				})
+				this.parameters = data[0]
+			  this.parametersLoaded = true 
+				if (countOfParametersPreFilled === data[0].length) {
+					this.getData()
+				}
+			})
+	},
+	getSetAuth() {
+		;(function() {
+						let that = this
 						//redirects user if they navigate to apps/ instead of apps.cityoflewisville.com/; OAUTH will not redirect to apps/
 						if (window.location.host === 'apps') {
 							window.location =
@@ -185,47 +255,8 @@ export default {
 							}
 						}
 					})()
-				}
-			})
-		axios
-			.post(
-				this.apiUrl,
-				qs.stringify({
-					webservice: 'ITS/Get Parameters For Webservice',
-					webservice_name: decodeURI(this.webserviceName),
-					auth_token: localStorage.colAuthToken
-				})
-			)
-			.then(e => {
-				var data = e.data
-				var countOfParametersPreFilled = 0
-				if (data.length === 0) {
-					data[0] = []
-				}
-				data[0].map((val, i) => {
-					if (upperUrlQuery[val['name'].replace(/@/, '').toUpperCase()]) {
-						data[0][i]['value'] = upperUrlQuery[val['name'].replace(/@/, '').toUpperCase()]
-						countOfParametersPreFilled += 1
-					} else {
-						const textTypes = ['char', 'nvarchar', 'varchar', 'varbinary']
-						if (textTypes.indexOf(val['PARAMETER_TYPE']) > -1) {
-							data[0][i]['value'] = ''
-						} else {
-							data[0][i]['value'] = null
-						}
-					}
-				})
-				this.parameters = data[0]
-			  this.parametersLoaded = true 
-				if (countOfParametersPreFilled === data[0].length) {
-					this.getData()
-				}
-			})
-    },
+	},
     getData(ev) {
-    //   if (ev) {
-    //     ev.preventDefault()
-    //   }
       let formData = {
         webservice: decodeURI(this.webserviceName), auth_token: localStorage.colAuthToken
       }
@@ -261,7 +292,6 @@ export default {
 		.then(response => response.data)
 		.then(users => {
 			this.activeDirectory = users
-			console.log(this.activeDirectory)
 		})
 		.catch(err => console.log(err))
 	},
@@ -299,6 +329,9 @@ export default {
 	}
   },
   computed: {
+	  user() {
+          return localStorage.colEmail !== undefined ? localStorage.colEmail : null
+        },
       apiUrl() {
 		   return 'http://ax1vnode1.cityoflewisville.com/v2/'
       },
@@ -453,5 +486,30 @@ label#dark-label {
 }
 span.span-title {
     vertical-align: super;
+}
+button#user-login {
+    position: absolute;
+    border-radius: 50px;
+    left: 6px;
+    top: 62px;
+	z-index:1 !important;
+    vertical-align: top;
+    line-height: 48px;
+    padding-bottom: 10px !important;
+}
+button#user-login:hover {
+	cursor: pointer !important;
+}
+/* logo */
+.v-responsive__content {
+    -webkit-box-flex: 1;
+    -ms-flex: 1 0 0px;
+    flex: 1 0 0px;
+    width: 55px;
+}
+button.robot.v-toolbar__side-icon.v-btn.v-btn--icon.theme--light,
+button.robot.v-toolbar__side-icon.v-btn.v-btn--icon.theme--dark {
+    margin-top: -20px;
+    margin-left: 3px;
 }
 </style>

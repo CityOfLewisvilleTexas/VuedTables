@@ -42,10 +42,12 @@
           class="headline"
           primary-title
         >
-          Include / Exclude Columns
+          <span>
+            Include / Exclude Columns
+          </span>
         </v-card-title>
 
-       <v-list two-line subheader >
+       <v-list two-line subheader>
             <v-subheader id="sub">
                 Select columns you would like to include / exclude
             </v-subheader>
@@ -86,7 +88,7 @@ import axios from 'axios'
 
 export default {
     name: 'VueDataTable',
-    props: ['apiUrl', 'updateData', 'data', 'title', 'datakey', 'datakeyIndex', 'webserviceName'],
+    props: ['user', 'apiUrl', 'updateData', 'data', 'title', 'datakey', 'datakeyIndex', 'webserviceName', 'getAuth', 'activeDirectory', 'checkIfUserInActiveDirectory'],
     components: {
         DownloadButton
     },
@@ -95,6 +97,7 @@ export default {
             items: [],
             interaction: false,
             search: '',
+            authToken: '',
             filters: {},
             dialog: false,
             allSelected: false,
@@ -108,6 +111,7 @@ export default {
                 }
     },
     mounted() {
+      // this.passiveAuth(),
       this.setInitialColumns()
     },
     watch: {
@@ -118,8 +122,11 @@ export default {
     },
     methods: {
         dockedButtonClick() {
-          this.dialog = !this.dialog
-          this.interaction = true
+          console.log('user is in AD', this.checkIfUserInActiveDirectory())
+          if(this.checkIfUserInActiveDirectory()) {
+            this.dialog = !this.dialog
+            this.interaction = true
+          }
         },
         exists(val) {
           return Boolean(val && val !== '' && val !== undefined)
@@ -372,23 +379,9 @@ export default {
           },
           clearFilters() {
             this.filters = {}
-          },
-
-      filterSearch(val) {
-        this.filters = this.$MultiFilters.updateFilters(this.filters, {search: val});
-      },
+          }
     },
     computed: {
-        user() {
-          return localStorage.colEmail !== undefined ? localStorage.colEmail : null
-        },
-        selection() {
-        return this.headers.filter(header => {
-            if (header.selected === true) {
-            return header
-            }
-        });
-        },
         headers() {
             let scopedKeys = []
             let _set = new Set()
