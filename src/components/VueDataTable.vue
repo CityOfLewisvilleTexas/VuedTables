@@ -122,14 +122,13 @@ export default {
     },
     methods: {
         dockedButtonClick() {
-          console.log('user is in AD', this.checkIfUserInActiveDirectory())
-          if(this.checkIfUserInActiveDirectory()) {
+          // if(this.checkIfUserInActiveDirectory()) {
             this.dialog = !this.dialog
             this.interaction = true
-          }
+          // }
         },
         exists(val) {
-          return Boolean(val && val !== '' && val !== undefined)
+          return Boolean(val && val !== '' && val !== undefined && val !== null)
         },
         createReferenceArray(i) {
             let arr = []
@@ -141,27 +140,28 @@ export default {
             } return arr
         },
         formatColumns(user, headers, headersToExclude, flag) {
-          axios
-          .post(
-            this.apiUrl,
-            qs.stringify({
-            webservice: 'MiscPrograms/Autotables/Format Columns',
-            webserviceName: decodeURI(this.webserviceName),
-            editedBy: user,
-            webserviceColumns: headers,
-            columnsToExclude: headersToExclude.length ? headersToExclude : '',
-            flag: flag
+          console.log(user)
+            axios
+            .post(
+              this.apiUrl,
+              qs.stringify({
+              webservice: 'MiscPrograms/Autotables/Format Columns',
+              webserviceName: decodeURI(this.webserviceName),
+              editedBy: user,
+              webserviceColumns: headers,
+              columnsToExclude: headersToExclude.length ? headersToExclude : '',
+              flag: flag
+              })
+            )
+            .then(response => {
+              let data = response.data[0][0]
+              let x = data['autotables_webserviceColumnsToExclude']
+              if(this.exists(x)) {
+                this.headersToExclude = this.createReferenceArray(x)
+                // console.log('headers to exclude', this.headersToExclude)
+              }
             })
-          )
-          .then(response => {
-            let data = response.data[0][0]
-            let x = data['autotables_webserviceColumnsToExclude']
-            if(this.exists(x)) {
-              this.headersToExclude = this.createReferenceArray(x)
-              // console.log('headers to exclude', this.headersToExclude)
-            }
-          })
-          .catch(err => console.warn('there was an error', err))
+            .catch(err => console.warn('there was an error', err))
         },
         setInitialColumns() {
             let that = this
@@ -175,27 +175,35 @@ export default {
         update() {
             this.dialog = false
             let that = this
-            this.formatColumns(
+            if(that.exists(that.user) && this.checkIfUserInActiveDirectory()) {
+              this.formatColumns(
               that.user,
               that.headers.filter(h => h.selected).map(h => h.text).join(','),
               that.headers.filter(h => !h.selected).map(h => h.text).join(','),
               1
-            )
+            )} else {
+              that.headersToExclude = that.headers.filter(h => !h.selected).map(h => h.text).join(',')
+            }
         },
         reset() {
           this.dialog = false
-          axios.post(this.apiUrl,
-          qs.stringify({
-            webservice: 'MiscPrograms/Autotables/Reset Columns',
-            webserviceName: decodeURI(this.webserviceName),
-            editedBy: this.user
-            }))
-              .then(response => {
-                let data = response.data[0][0]
-                let x = data['autotables_webserviceColumnsToExclude']
-                  this.headersToExclude = this.createReferenceArray(x)
-                  // console.log('headers to exclude', this.headersToExclude)
-              })
+          if(this.exists(this.user) && this.checkIfUserInActiveDirectory()) {
+              axios.post(this.apiUrl,
+              qs.stringify({
+                webservice: 'MiscPrograms/Autotables/Reset Columns',
+                webserviceName: decodeURI(this.webserviceName),
+                editedBy: this.user
+                }))
+                  .then(response => {
+                    let data = response.data[0][0]
+                    let x = data['autotables_webserviceColumnsToExclude']
+                      this.headersToExclude = this.createReferenceArray(x)
+                      // console.log('headers to exclude', this.headersToExclude)
+                  })
+          } else {
+            console.log(this.user)
+            this.headersToExclude = []
+          }
         },
         changeSort (column) {
         if (this.pagination.sortBy === column) {

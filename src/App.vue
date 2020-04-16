@@ -19,7 +19,7 @@
 	  </v-toolbar-title>
     </v-toolbar>
 	<v-btn id="user-login" color="success" @click="checkIfUserInActiveDirectory">
-		{{user ? user : 'user login'}}
+		{{user ? user : 'ITS login'}}
 	</v-btn>
     <v-content>
     <v-container grid-list-md text-xs-center>
@@ -77,7 +77,7 @@ export default {
     return {
       data: [],
 	  dataIsLoading: false,
-	  goDark: false,
+	  goDark: localStorage.theme ? Boolean(localStorage.theme) : false,
       webserviceName: '',
 	  parameters: [],
 	  selectedParams: [],
@@ -92,6 +92,8 @@ export default {
   },
   methods: {
 	  checkIfUserInActiveDirectory() {
+		  debugger;
+		  console.log('user', this.user)
           let currentUser = this.user
           const authorizedUserEmails = this.activeDirectory
           .map(u => u['mail']
@@ -211,6 +213,7 @@ export default {
 									.then(e => {
 										var data = e.data
 										localStorage.colAuthToken = data[0][0]['AUTH_TOKEN']
+										//localStorage.colEmail = data[0][0]['EMAIL']
 										window.location = localStorage.redirectUrl
 									})
 							}
@@ -360,7 +363,10 @@ export default {
    watch: {
      '$route.hash': function() {
        this.initializeWebserviceInfo()
-     }
+	 },
+	 'goDark': function() {
+		 localStorage.setItem('theme', this.goDark)
+	 }
    }
 }
 </script>
@@ -406,7 +412,9 @@ button#export-button {
     display: inline-block;
 }
 span#paramval {
-    font-size: 1rem;
+    font-size: .8rem;
+    text-transform: initial;
+    letter-spacing: normal;
 }
 .v-datatable__actions {
     justify-content: flex-start !important;
