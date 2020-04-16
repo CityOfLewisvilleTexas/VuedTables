@@ -1,4 +1,6 @@
-# autotables
+# autotables Inline-style: 
+![alt text](https://github.com/CityOfLewisvilleTexas/VuedTables/src/assets/robot-dark.png "Logo Title Text 1")
+
 
 ## Project setup
 ```
