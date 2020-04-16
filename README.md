@@ -1,5 +1,5 @@
 # autotables Inline-style: 
-![alt text](https://github.com/CityOfLewisvilleTexas/VuedTables/blob/master/src/assets/robot-dark.png "Logo Title Text 1")
+![alt text](https://github.com/CityOfLewisvilleTexas/VuedTables/blob/master/src/assets/robot-dark.png "Logo Title Text 1"| width=100)
 
 
 ## Project setup
